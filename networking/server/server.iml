@@ -9,6 +9,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="networking" />
     <orderEntry type="module" module-name="game" />
-    <orderEntry type="module" module-name="utils" />
+    <orderEntry type="module" module-name="utils" scope="PROVIDED" />
   </component>
 </module>

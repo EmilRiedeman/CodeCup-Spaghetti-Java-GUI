@@ -1,11 +1,13 @@
 package spaghetti.gui.swing;
 
 import spaghetti.game.Board;
+import spaghetti.game.BoardController;
 import spaghetti.game.BoardListener;
 import spaghetti.utils.Pair;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 
 public class PlayerSelectionPage implements Page {
     public final SpaghettiInterface parent;
@@ -13,8 +15,8 @@ public class PlayerSelectionPage implements Page {
 
     public final JPanel selectorPanel = new JPanel();
     public final PlayerSelection[] selectors = new PlayerSelection[] {
-            new PlayerSelection("Select Blue Player", this),
-            new PlayerSelection("Select Red Player", this)
+            new PlayerSelection("Player 1", this),
+            new PlayerSelection("Player 2", this)
     };
 
     public final JPanel submitPanel = new JPanel();
@@ -29,9 +31,12 @@ public class PlayerSelectionPage implements Page {
     public final JTextField boardWidthField = new JTextField("7");
     public final JTextField boardHeightField = new JTextField("9");
 
+    public final JLabel boardSidesLabel = new JLabel("Sides:");
+
     public PlayerSelectionPage(SpaghettiInterface parent) {
         this.parent = parent;
 
+        mainPanel.setFocusable(true);
         mainPanel.setBorder(BorderFactory.createEmptyBorder(-10, 0, -10, 0));
 
         selectorPanel.setLayout(new GridLayout(1, 2));
@@ -41,33 +46,7 @@ public class PlayerSelectionPage implements Page {
         updateSettings();
         submitButton.setPreferredSize(new Dimension(120, 40));
         submitButton.setFont(submitButton.getFont().deriveFont(20f));
-        submitButton.addActionListener(e -> {
-            Board board;
-            boolean human = selectors[0].isLocalHuman() && selectors[1].isLocalHuman();
-            if (human) {
-                try {
-                    board = new Board(Math.min(Integer.parseInt(boardWidthField.getText()), 50), Math.min(Integer.parseInt(boardHeightField.getText()), 50));
-                } catch (Exception exception) {
-                    board = new Board(7, 9);
-                }
-            } else
-                board = new Board(7, 9);
-            Pair<BoardListener, String>
-                    l0 = selectors[0].create(parent.board, board),
-                    l1 = selectors[1].create(parent.board, board);
-            if (l0.a != null && l1.a != null) {
-                parent.setPage(parent.board);
-                parent.setTitle("Spaghetti: " + l0.b + " versus " + l1.b);
-                parent.board.setBoard(board);
-                board.setControllers(l0.a, l1.a);
-                if (!(l0.a.isStartHandler() || l1.a.isStartHandler())) {
-                    board.start(prePlayedMovesCheckBox.isSelected() || !human);
-                }
-            } else {
-                if (l0.a != null) l0.a.close();
-                if (l1.a != null) l1.a.close();
-            }
-        });
+        submitButton.addActionListener(this::onSubmit);
         darkModeCheckBox.addActionListener(e -> {
             if (darkModeCheckBox.isSelected()) parent.setColorPalette(SpaghettiInterface.darkTheme);
             else parent.setColorPalette(SpaghettiInterface.lightTheme);
@@ -147,9 +126,38 @@ public class PlayerSelectionPage implements Page {
         }
     }
 
+    private void onSubmit(ActionEvent actionEvent) {
+        Board board;
+        boolean human = selectors[0].isLocalHuman() && selectors[1].isLocalHuman();
+        if (human) {
+            try {
+                board = new Board(Math.min(Integer.parseInt(boardWidthField.getText()), 50), Math.min(Integer.parseInt(boardHeightField.getText()), 50));
+            } catch (Exception exception) {
+                board = new Board(7, 9);
+            }
+        } else
+            board = new Board(7, 9);
+        parent.board.setBoard(board);
+        BoardController
+                c1 = selectors[0].create(parent.board, board),
+                c2 = selectors[1].create(parent.board, board);
+        if (c1 != null && c2 != null) {
+            parent.setPage(parent.board);
+            if (!(c1.isStartHandler() || c2.isStartHandler())) {
+                board.start(prePlayedMovesCheckBox.isSelected() || !human, c1, c2); // todo side
+            }
+            board.announceControllers(c1, c2);
+        } else {
+            if (c1 != null) c1.close();
+            if (c2 != null) c2.close();
+        }
+    }
+
     @Override
     public void enablePage(JFrame frame) {
         frame.getContentPane().add(mainPanel);
+        frame.setTitle("Spaghetti");
+        mainPanel.requestFocus();
     }
 
     @Override

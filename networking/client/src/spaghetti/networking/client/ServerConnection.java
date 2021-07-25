@@ -1,35 +1,34 @@
 package spaghetti.networking.client;
 
 import spaghetti.game.Board;
+import spaghetti.game.BoardController;
 import spaghetti.game.BoardListener;
 import spaghetti.game.Move;
-import spaghetti.networking.ServerCommand;
+import spaghetti.networking.ServerPacketType;
 
 import java.io.*;
 import java.net.Socket;
 
-public class ServerConnection implements BoardListener, Runnable {
+public class ServerConnection extends BoardController implements Runnable {
 
     protected boolean connected = false;
-    public final Board board;
     public Socket socket;
     public ObjectInputStream in;
     public ObjectOutputStream out;
 
     public ServerConnection(String address, int port, Board b) {
+        super(b);
         try {
             socket = new Socket(address, port);
 
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
-            board = null;
             e.printStackTrace();
             return;
         }
 
-        board = b;
-        b.addBoardListener(this);
+        board.addBoardListener(this);
 
         connected = true;
         System.out.printf("Connected to %s:%s%n", address, port);
@@ -64,8 +63,14 @@ public class ServerConnection implements BoardListener, Runnable {
     }
 
     @Override
-    public void start() {
+    public void announceControllers(BoardController c1, BoardController c2) {
+        if (c1 != this && c2 != this) return;
+        send(c1 == this? c2.getName(): c1.getName());
+    }
 
+    @Override
+    public void onGameStart() {
+        assert false;
     }
 
     @Override
@@ -79,8 +84,8 @@ public class ServerConnection implements BoardListener, Runnable {
     }
 
     @Override
-    public String getControllerName() {
-        return "Server";
+    public void setSide(boolean side) {
+        super.setSide(side);
     }
 
     @Override
@@ -89,20 +94,34 @@ public class ServerConnection implements BoardListener, Runnable {
             try {
                 Object data = in.readObject();
                 System.out.println("received: " + data);
-                if (data instanceof ServerCommand) {
-                    switch ((ServerCommand) data) {
-                        case START:
-                            if (board.getControllerTurn() == this) board.swapControllers();
-                            board.getControllerTurn().start();
+                if (data instanceof ServerPacketType) {
+                    switch ((ServerPacketType) data) {
+                        case SIDE:
+                            boolean otherSide = (boolean)in.readObject(); // false=blue true=red
+                            setSide(!otherSide);
+                            boolean started = false;
+                            for (BoardListener l : board.getBoardListeners()) {
+                                if (l instanceof BoardController && l != this) {
+                                    BoardController c = (BoardController) l;
+                                    board.start(this, otherSide? this: c, otherSide? c: this);
+                                    started = true;
+                                    break;
+                                }
+                            }
+                            if (!started) quit();
+                            break;
+                        case NAMES:
+                            String[] names = (String[])in.readObject();
+                            name = names[getSide()? 1: 0];
                             break;
                         case QUIT:
                             quit();
                             break;
                     }
                 } else if (data instanceof Move) {
-                    board.gameStarted = true;
-                    if (board.getMoveCount() == 2 && board.getControllerTurn() != this) board.swapControllers();
-                    board.play((Move) data, this);
+                    Move m = (Move) data;
+                    if (board.isOccupied(m.row, m.col)) quit();
+                    else board.play((Move) data, this);
                 }
             } catch(IOException | ClassNotFoundException i) {
                 i.printStackTrace();

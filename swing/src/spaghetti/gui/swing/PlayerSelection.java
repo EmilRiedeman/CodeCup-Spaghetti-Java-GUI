@@ -1,6 +1,7 @@
 package spaghetti.gui.swing;
 
 import spaghetti.game.Board;
+import spaghetti.game.BoardController;
 import spaghetti.networking.client.ServerConnection;
 import spaghetti.utils.*;
 import spaghetti.BotProgram;
@@ -66,7 +67,8 @@ public class PlayerSelection extends JPanel implements ItemListener {
 
     public PlayerSelection(String text, PlayerSelectionPage p) {
         this.parent = p;
-        this.title.setText(text);
+        this.title.setText("Select " + text);
+        this.nameField.setText(text);
         setBorder(BorderFactory.createLineBorder(Color.BLACK));
         GroupLayout.Group[] horizontalGroups = new GroupLayout.Group[3];
         GroupLayout.Group[] verticalGroups = new GroupLayout.Group[3];
@@ -188,11 +190,12 @@ public class PlayerSelection extends JPanel implements ItemListener {
         setLayout(layouts[0]);
     }
 
-    public Pair<BoardListener, String> create(GraphicalBoard gb, Board board) {
-        BoardListener r = null;
+    public BoardController create(GraphicalBoard gb, Board board) {
+        BoardController r = null;
+        String name = nameField.getText();
         switch (typeSelection.getSelectedIndex()) {
             case 0:
-                r = gb;
+                r = new MouseInputBoardController(name, gb);
                 break;
             case 1:
                 try {
@@ -205,22 +208,22 @@ public class PlayerSelection extends JPanel implements ItemListener {
             case 2:
                 if (execRadio.isSelected()) {
                     if (fileExec != null && fileExec.exists())
-                        r = new BotProgram(fileExec.getAbsolutePath(), board);
+                        r = new BotProgram(name, fileExec.getAbsolutePath(), board);
                     else
                         r = null;
                 } else if (javaRadio.isSelected())
                     if (fileJava != null && fileJava.exists()) {
                         if (Utils.getFileExtension(fileJava).equals("class"))
-                            r = new BotProgram("" + '"' + System.getProperty("java.home")
+                            r = new BotProgram(name, "" + '"' + System.getProperty("java.home")
                                     + "\\bin\\java.exe\" -classpath \"" + fileJava.getParent() +
                                     "\" " + fileJava.getName().replaceFirst("[.][^.]+$", ""), board);
                         else if (Utils.getFileExtension(fileJava).equals("jar"))
-                            r = new BotProgram("" + '"' + System.getProperty("java.home")
+                            r = new BotProgram(name, "" + '"' + System.getProperty("java.home")
                                     + "\\bin\\java.exe\" -jar \"" + fileJava.getAbsolutePath() + "\"", board);
                     }
                 break;
         }
-        return new Pair<>(r, nameField.getText());
+        return r;
     }
 
     public boolean isLocalHuman() {

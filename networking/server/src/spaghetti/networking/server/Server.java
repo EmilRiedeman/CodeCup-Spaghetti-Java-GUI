@@ -1,7 +1,8 @@
 package spaghetti.networking.server;
 
 import spaghetti.game.Board;
-import spaghetti.networking.ServerCommand;
+import spaghetti.game.BoardState;
+import spaghetti.networking.ServerPacketType;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Server {
+
     public final ServerSocket socket = new ServerSocket();
     public final Board board = new Board(7, 9);
     public boolean running;
@@ -26,8 +28,8 @@ public class Server {
     public void start(boolean prePlayedMoves) {
         board.addBoardListener(connections.get(0));
         board.addBoardListener(connections.get(1));
-        board.setControllers(connections.get(0), connections.get(1));
-        board.start(prePlayedMoves);
+        board.start(prePlayedMoves, connections.get(0), connections.get(1));
+        board.announceControllers(board.getController(false), board.getController(true));
     }
 
     public void waitForPlayers() {
@@ -40,7 +42,7 @@ public class Server {
                 return;
             }
             for (ClientConnection c : connections.toArray(new ClientConnection[0])) {
-                c.send(ServerCommand.TEST_CONNECTION);
+                c.send(ServerPacketType.TEST_CONNECTION);
             }
         }
     }
@@ -60,7 +62,7 @@ public class Server {
         System.out.println("Players found.");
         server.start(prePlayed);
 
-        while (server.board.isRunning()) {
+        while (server.board.getCurrentState() == BoardState.RUNNING) {
             if (!((ClientConnection)server.board.getControllerTurn()).play()) break;
         }
         server.board.close();

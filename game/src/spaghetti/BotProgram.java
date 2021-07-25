@@ -1,21 +1,20 @@
 package spaghetti;
 
-import spaghetti.game.Board;
-import spaghetti.game.BoardListener;
-import spaghetti.game.Move;
+import spaghetti.game.*;
 
 import java.io.*;
 
-public class BotProgram implements BoardListener {
+public class BotProgram extends BoardController {
+
     protected BufferedReader stdout;
     protected BufferedWriter stdin;
     protected Process process;
+    protected boolean side;
     public final String cmd;
-    public final Board board;
 
-    public BotProgram(String command, Board board) {
+    public BotProgram(String name, String command, Board board) {
+        super(name, board);
         System.err.println(command);
-        this.board = board;
         board.addBoardListener(this);
 
         cmd = command;
@@ -57,7 +56,7 @@ public class BotProgram implements BoardListener {
             }
             else throw new NullPointerException();
         } catch (NullPointerException e) {
-            if (board.isRunning()) {
+            if (board.getCurrentState() == BoardState.RUNNING) {
                 System.err.println("Bot Program sends wrong move.");
             }
             process.destroy();
@@ -77,7 +76,12 @@ public class BotProgram implements BoardListener {
     }
 
     @Override
-    public void start() {
+    public void announceControllers(BoardController c1, BoardController c2) {
+    }
+
+    @Override
+    public void onGameStart() {
+        if (side) return;
         try {
             stdin.write("Start\n");
             stdin.flush();
@@ -104,7 +108,7 @@ public class BotProgram implements BoardListener {
     }
 
     @Override
-    public String getControllerName() {
-        return "Bot";
+    public void setSide(boolean side) {
+        this.side = side;
     }
 }

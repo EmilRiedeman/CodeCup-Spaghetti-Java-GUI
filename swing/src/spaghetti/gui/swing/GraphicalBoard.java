@@ -1,18 +1,18 @@
 package spaghetti.gui.swing;
 
-import spaghetti.game.Board;
-import spaghetti.game.BoardListener;
-import spaghetti.game.Move;
+import spaghetti.game.*;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
 
 import static java.lang.Math.max;
 
-public class GraphicalBoard extends JComponent implements BoardListener, MouseInputListener, Page {
+public class GraphicalBoard extends JComponent implements MouseInputListener, BoardListener, Page, KeyListener {
     protected Board board;
     public final SpaghettiInterface parent;
     public final int
@@ -24,8 +24,11 @@ public class GraphicalBoard extends JComponent implements BoardListener, MouseIn
 
     public GraphicalBoard(SpaghettiInterface parent) {
         this.parent = parent;
+        setFocusable(true);
         addMouseListener(this);
         addMouseMotionListener(this);
+        setPreferredSize(new Dimension(parent.getWidth(), parent.getHeight()));
+        close();
     }
 
     public void setBoard(Board board) {
@@ -67,20 +70,38 @@ public class GraphicalBoard extends JComponent implements BoardListener, MouseIn
             }
         }
 
-        // Score:
-        String scoreBlue = "" + board.scores[0], scoreRed = "" + board.scores[1];
-        g2.setColor(parent.colorPalette.get(1));
-        g2.drawString(scoreBlue,
-                -(boardOffsetX / 2) - scoreBlue.length() * charWidth / 2,
-                board.height * tileSize() + boardOffsetY - charHeight / 2);
-        g2.setColor(parent.colorPalette.get(2));
-        g2.drawString(scoreRed,
-                board.width * tileSize() + (boardOffsetX / 2) - scoreRed.length() * charWidth / 2,
-                board.height * tileSize() + boardOffsetY - charHeight / 2);
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+        if (board.getCurrentState() != BoardState.PRE_START) {
+            int bottomTextY = board.height * tileSize() + boardOffsetY - charHeight / 2;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            // Score:
+            String scoreBlue = "" + board.scores[0], scoreRed = "" + board.scores[1];
+            g2.setColor(parent.colorPalette.get(1));
+            g2.drawString(scoreBlue,
+                    -(boardOffsetX / 2) - scoreBlue.length() * charWidth / 2,
+                    bottomTextY);
+            g2.setColor(parent.colorPalette.get(2));
+            g2.drawString(scoreRed,
+                    board.width * tileSize() + (boardOffsetX / 2) - scoreRed.length() * charWidth / 2,
+                    bottomTextY);
 
-        for (int row = 0; row < board.height; ++row) for (int col = 0; col < board.width; ++col) {
-            drawTile(g2, row, col);
+            // Names:
+            g2.setColor(parent.colorPalette.get(1));
+            g2.drawString(board.getController(false).getName(),
+                    0,
+                    bottomTextY);
+            g2.setColor(parent.colorPalette.get(2));
+            String redName = board.getController(true).getName();
+            g2.drawString(redName,
+                    getBoardWidth() - redName.length() * charWidth,
+                    bottomTextY);
+
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+
+            // Tiles:
+            for (int row = 0; row < board.height; ++row)
+                for (int col = 0; col < board.width; ++col) {
+                    drawTile(g2, row, col);
+                }
         }
 
         // Plus Dots:
@@ -107,24 +128,40 @@ public class GraphicalBoard extends JComponent implements BoardListener, MouseIn
         g2.drawLine(getBoardWidth()+thick, -thick, getBoardWidth()+thick, getBoardHeight()+thick);
 
         // Turn Circles:
-        if (board.isGameStarted()) {
+        if (isBoardRunning()) {
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            if (board.getTurn()) {
-                g2.setColor(parent.colorPalette.get(1));
-                g2.fillArc(getBoardWidth() / 2 - turnCircleSize + turnCircleOverlap, getBoardHeight() + boardOffsetY / 2 - turnCircleSize / 2, turnCircleSize, turnCircleSize, 0, 360);
-                g2.setColor(parent.colorPalette.get(2));
-                g2.fillArc(getBoardWidth() / 2 - turnCircleOverlap, getBoardHeight() + boardOffsetY / 2 - turnCircleSize / 2, turnCircleSize, turnCircleSize, 0, 360);
-            } else {
-                g2.setColor(parent.colorPalette.get(2));
-                g2.fillArc(getBoardWidth() / 2 - turnCircleOverlap, getBoardHeight() + boardOffsetY / 2 - turnCircleSize / 2, turnCircleSize, turnCircleSize, 0, 360);
-                g2.setColor(parent.colorPalette.get(1));
-                g2.fillArc(getBoardWidth() / 2 - turnCircleSize + turnCircleOverlap, getBoardHeight() + boardOffsetY / 2 - turnCircleSize / 2, turnCircleSize, turnCircleSize, 0, 360);
+            Point[] p = new Point[] {
+                    new Point(
+                            getBoardWidth() / 2 - turnCircleSize + turnCircleOverlap,
+                            getBoardHeight() + boardOffsetY / 2 - turnCircleSize / 2
+                    ), new Point(
+                    getBoardWidth() / 2 - turnCircleOverlap,
+                    getBoardHeight() + boardOffsetY / 2 - turnCircleSize / 2
+            )};
+            Color[] c = new Color[] {
+                    parent.colorPalette.get(1),
+                    parent.colorPalette.get(2)
+            };
+            int i = board.getTurn()? 0: 1;
+            for (int x : new int[]{i, 1-i}) {
+                g2.setColor(c[x]);
+                g2.fillArc(p[x].x, p[x].y, turnCircleSize, turnCircleSize, 0, 360);
             }
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         }
 
-        if (!board.isGameStarted()) {
-
+        // Big Message:
+        String msg = null;
+        if (board.getCurrentState() == BoardState.PRE_START) msg = "Waiting for start...";
+        if (msg != null) {
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            g2.setColor(parent.colorPalette.get(8));
+            g2.drawRect(0, 0, 100, 50);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setFont(font);
+            g2.setColor(parent.colorPalette.get(0));
+            g2.drawString(msg, 0, 0);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         }
 
         // Sample:
@@ -294,28 +331,45 @@ public class GraphicalBoard extends JComponent implements BoardListener, MouseIn
         return p;
     }
 
-    @Override
-    public void registerMove(Move m, BoardListener l) {
+    public void refreshPaint() {
         revalidate();
         repaint();
     }
 
     @Override
-    public void start() {
+    public void registerMove(Move m, BoardListener l) {
+        refreshPaint();
+    }
+
+    @Override
+    public void announceControllers(BoardController blue, BoardController red) {
+    }
+
+    @Override
+    public void onGameStart() {
+        refreshPaint();
     }
 
     @Override
     public void close() {
+        setBoard(null);
+        sample = null;
+        highlight = null;
+    }
+
+    public boolean isBoardRunning() {
+        return board != null && board.getCurrentState() == BoardState.RUNNING;
+    }
+
+    public boolean isControllerTurn() {
+        return isBoardRunning() &&
+                board.getControllerTurn() instanceof MouseInputBoardController &&
+                ((MouseInputBoardController)board.getControllerTurn()).gb == this;
     }
 
     @Override
     public boolean isStartHandler() {
         return false;
-    }
-
-    @Override
-    public String getControllerName() {
-        return "GUI Player";
     }
 
     @Override
@@ -328,14 +382,14 @@ public class GraphicalBoard extends JComponent implements BoardListener, MouseIn
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        if (board == null || !board.isGameStarted() || board.getControllerTurn() != this) return;
+        if (!isControllerTurn()) return;
         if (inSample(e.getPoint())) {
             char t = getTypeFromSample(e.getPoint());
             Point s = getBoardPosition(sample.x, sample.y);
             if (t != '\0') board.play(new Move(s.x, s.y, t), this);
             sampleHighlight = '\0';
             sample = null;
-            repaint();
+            refreshPaint();
             return;
         }
         sampleHighlight = '\0';
@@ -363,28 +417,47 @@ public class GraphicalBoard extends JComponent implements BoardListener, MouseIn
 
     @Override
     public void mouseMoved(MouseEvent e) {
+        if (!isBoardRunning()) return;
         if (inSample(e.getPoint())) {
             highlight = null;
             sampleHighlight = getTypeFromSample(e.getPoint());
-            repaint();
+            refreshPaint();
             return;
         }
         sampleHighlight = '\0';
         highlight = getBoardPosition(e.getX(), e.getY());
         if (highlight != null && (board.isOccupied(highlight.x, highlight.y) ||
                 (sample != null && highlight.equals(getBoardPosition(sample.x, sample.y))))) highlight = null;
-        repaint();
+        refreshPaint();
     }
 
     @Override
     public void enablePage(JFrame frame) {
+        frame.setTitle("Spaghetti (Press Esc to go to Start Page)");
         frame.getContentPane().add(this);
-        repaint();
-        revalidate();
+        addKeyListener(this);
+        refreshPaint();
+        requestFocus();
     }
 
     @Override
     public void disablePage(JFrame frame) {
         frame.getContentPane().removeAll();
+        removeKeyListener(this);
+        close();
+        parent.repaint();
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) parent.setPage(parent.getStartPage());
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
     }
 }

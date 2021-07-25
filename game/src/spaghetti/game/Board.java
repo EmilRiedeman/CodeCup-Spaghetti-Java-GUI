@@ -4,7 +4,6 @@ import spaghetti.utils.Pair;
 import spaghetti.utils.Triplet;
 
 import java.util.*;
-import java.util.List;
 
 /************************************************************
  * The play function is written by Ludo Pulles in javascript
@@ -36,11 +35,11 @@ public class Board {
     public final int width, height;
     public final Tile[][] tiles;
     public final int[] scores = {50, 50};
-    protected final List<BoardListener> listeners = new ArrayList<>();
-    protected final BoardListener[] controllers = new BoardListener[2];
+    protected final Set<BoardListener> listeners = new HashSet<>();
+    protected final BoardController[] controllers = new BoardController[2];
     protected boolean turn = false;
-    public boolean gameStarted = false;
     protected int moveCount = 0;
+    protected BoardState currentState = BoardState.PRE_START;
 
     public Board(int width, int height) {
         this.width = width;
@@ -49,6 +48,11 @@ public class Board {
         for (Tile[] t : tiles) {
             for (int i = 0; i < width; ++i) t[i] = new Tile();
         }
+    }
+
+    public Board(int width, int height, Move[] moves) {
+        this(width, height);
+        for (Move m : moves) play(m, null);
     }
 
     public void addBoardListener(BoardListener l) {
@@ -60,32 +64,13 @@ public class Board {
         if (moveCount != 0 && (controllers[0] == l || controllers[1] == l)) close();
     }
 
-    public void setControllers(BoardListener blue, BoardListener red) {
-        controllers[0] = blue;
-        controllers[1] = red;
-    }
-
-    public void swapControllers() {
-        BoardListener l = controllers[1];
-        controllers[1] = controllers[0];
-        controllers[0] = l;
-    }
-
-    public Board(int width, int height, Move[] moves) {
-        this(width, height);
-        for (Move m : moves) play(m, null);
-    }
-
     public void close() {
+        currentState = BoardState.OVER;
         for (BoardListener l : listeners) l.close();
     }
 
-    public boolean isRunning() {
-        return moveCount != width * height;
-    }
-
-    public boolean isGameStarted() {
-        return gameStarted;
+    public BoardState getCurrentState() {
+        return currentState;
     }
 
     public int getMoveCount() {
@@ -96,8 +81,16 @@ public class Board {
         return turn;
     }
 
-    public BoardListener getControllerTurn() {
+    public BoardController getControllerTurn() {
         return controllers[turn? 1: 0];
+    }
+
+    public BoardController getController(boolean c) {
+        return controllers[c? 1: 0];
+    }
+
+    public BoardListener[] getBoardListeners() {
+        return listeners.toArray(new BoardListener[0]);
     }
 
     public boolean isOccupied(int row, int col) {
@@ -180,7 +173,25 @@ public class Board {
         }
     }
 
-    public void start(boolean prePlayedMoves) {
+    public void announceControllers(BoardController c1, BoardController c2) {
+        for (BoardListener l : listeners) l.announceControllers(c1, c2);
+    }
+
+    public void start(BoardListener startHandler, BoardController blue, BoardController red) {
+        assert startHandler.isStartHandler();
+        privateStart(blue, red);
+    }
+
+    private void privateStart(BoardController blue, BoardController red) {
+        controllers[0] = blue;
+        controllers[1] = red;
+        if (!blue.isStartHandler()) blue.setSide(false);
+        if (!red.isStartHandler()) red.setSide(true);
+        currentState = BoardState.RUNNING;
+        for (BoardListener l : listeners) l.onGameStart();
+    }
+
+    public void start(boolean prePlayedMoves, BoardController blue, BoardController red) {
         if (prePlayedMoves && width >= 4 && height >= 4) {
             Random rand = new Random();
             Move m1 = generatePreMove(rand), m2 = generatePreMove(rand);
@@ -188,8 +199,7 @@ public class Board {
             play(m1, null);
             play(m2, null);
         }
-        gameStarted = true;
-        controllers[0].start();
+        privateStart(blue, red);
     }
 
     public Move generatePreMove(Random rand) {
@@ -270,6 +280,7 @@ public class Board {
             if (choose_best) break;
         }
 
+        if (moveCount == width * height) currentState = BoardState.OVER;
         turn = !turn;
         for (BoardListener listener : listeners) listener.registerMove(move, player);
     }

@@ -53,6 +53,10 @@ public class SpaghettiInterface extends JFrame {
         currentPage.enablePage(this);
     }
 
+    public Page getStartPage() {
+        return playerSelection;
+    }
+
     public SpaghettiInterface(Board board) {
         super("Spaghetti");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
