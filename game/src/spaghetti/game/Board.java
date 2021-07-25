@@ -61,7 +61,7 @@ public class Board {
 
     public void removeBoardListener(BoardListener l) {
         listeners.remove(l);
-        if (moveCount != 0 && (controllers[0] == l || controllers[1] == l)) close();
+        if (currentState != BoardState.OVER && (controllers[0] == l || controllers[1] == l)) close();
     }
 
     public void close() {

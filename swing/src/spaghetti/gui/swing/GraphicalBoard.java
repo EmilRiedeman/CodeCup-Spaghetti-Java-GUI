@@ -32,7 +32,13 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
     }
 
     public void setBoard(Board board) {
-        if (this.board != null) this.board.removeBoardListener(this);
+        if (this.board != null) {
+            this.board.removeBoardListener(this);
+            for (BoardListener l : this.board.getBoardListeners())
+                if (isChild(l)) {
+                    this.board.removeBoardListener(l);
+                }
+        }
         this.board = board;
         if (board != null) board.addBoardListener(this);
     }
@@ -156,11 +162,11 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
         if (msg != null) {
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
             g2.setColor(parent.colorPalette.get(8));
-            g2.drawRect(0, 0, 100, 50);
+            g2.fillRect(50, 50, 100, 30);
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setFont(font);
             g2.setColor(parent.colorPalette.get(0));
-            g2.drawString(msg, 0, 0);
+            g2.drawString(msg, 50, 50);
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         }
 
@@ -357,14 +363,18 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
         highlight = null;
     }
 
+    public boolean isChild(BoardListener l) {
+        return l instanceof MouseInputBoardController &&
+                ((MouseInputBoardController)l).gb == this;
+    }
+
     public boolean isBoardRunning() {
         return board != null && board.getCurrentState() == BoardState.RUNNING;
     }
 
     public boolean isControllerTurn() {
         return isBoardRunning() &&
-                board.getControllerTurn() instanceof MouseInputBoardController &&
-                ((MouseInputBoardController)board.getControllerTurn()).gb == this;
+                isChild(board.getControllerTurn());
     }
 
     @Override
@@ -417,7 +427,11 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        if (!isBoardRunning()) return;
+        if (!isBoardRunning()) {
+            sample = null;
+            highlight = null;
+            return;
+        }
         if (inSample(e.getPoint())) {
             highlight = null;
             sampleHighlight = getTypeFromSample(e.getPoint());
@@ -444,8 +458,8 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
     public void disablePage(JFrame frame) {
         frame.getContentPane().removeAll();
         removeKeyListener(this);
-        close();
         parent.repaint();
+        close();
     }
 
     @Override
@@ -454,7 +468,9 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) parent.setPage(parent.getStartPage());
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            parent.setPage(parent.getStartPage());
+        }
     }
 
     @Override

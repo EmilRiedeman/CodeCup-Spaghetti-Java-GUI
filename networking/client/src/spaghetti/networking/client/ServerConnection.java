@@ -55,6 +55,7 @@ public class ServerConnection extends BoardController implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        board.removeBoardListener(this);
     }
 
     @Override
