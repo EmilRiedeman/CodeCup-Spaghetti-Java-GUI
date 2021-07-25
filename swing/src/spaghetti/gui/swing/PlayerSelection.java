@@ -239,6 +239,7 @@ public class PlayerSelection extends JPanel implements ItemListener {
             setLayout(layouts[typeSelection.getSelectedIndex()]);
             typeSelection.setVisible(true);
             nameField.setVisible(true);
+            nameField.setEnabled(true);
             nameLabel.setVisible(true);
             title.setVisible(true);
             switch (typeSelection.getSelectedIndex()) {
@@ -248,6 +249,7 @@ public class PlayerSelection extends JPanel implements ItemListener {
 
                     serverPortLabel.setVisible(true);
                     serverPortField.setVisible(true);
+                    nameField.setEnabled(false);
                     break;
                 case 2:
                     execFileLabel.setVisible(true);

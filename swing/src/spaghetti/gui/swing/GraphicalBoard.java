@@ -166,7 +166,7 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setFont(font);
             g2.setColor(parent.colorPalette.get(0));
-            g2.drawString(msg, 50, 50);
+            g2.drawString(msg, 50, 50 + charHeight);
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         }
 
@@ -312,14 +312,14 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
         int x0 = x + gridLineWidth, y0 = y + gridLineWidth, s = tileSize - gridLineWidth * 2;
 
         Point p = new Point(row, col);
-        if (p.equals(highlight)) {
+        if (type != '\0') {
+            drawTileType(g2, type, x0, y0, s, color0, color1, parent.colorPalette.get(-1));
+        } else if (p.equals(highlight)) {
             g2.setColor(parent.colorPalette.get(6));
             g2.fillRect(x, y, s + gridLineWidth * 2, s + gridLineWidth * 2);
         } else if (sample != null && p.equals(getBoardPosition(sample.x, sample.y))) {
             g2.setColor(parent.colorPalette.get(board.getTurn()? 4: 3));
             g2.fillRect(x, y, s + gridLineWidth * 2, s + gridLineWidth * 2);
-        } else {
-            drawTileType(g2, type, x0, y0, s, color0, color1, parent.colorPalette.get(-1));
         }
 
         g2.setStroke(new BasicStroke(gridLineWidth));
@@ -428,8 +428,6 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
     @Override
     public void mouseMoved(MouseEvent e) {
         if (!isBoardRunning()) {
-            sample = null;
-            highlight = null;
             return;
         }
         if (inSample(e.getPoint())) {
