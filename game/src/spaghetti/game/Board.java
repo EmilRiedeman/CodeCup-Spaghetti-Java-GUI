@@ -194,10 +194,9 @@ public class Board {
     public void start(boolean prePlayedMoves, BoardController blue, BoardController red) {
         if (prePlayedMoves && width >= 4 && height >= 4) {
             Random rand = new Random();
-            Move m1 = generatePreMove(rand), m2 = generatePreMove(rand);
+            Move m1 = generatePreMove(rand); play(m1, null);
+            Move m2 = generatePreMove(rand); play(m2, null);
             System.err.println("Pre Played Moves: " + m1 + ", " + m2);
-            play(m1, null);
-            play(m2, null);
         }
         privateStart(blue, red);
     }
