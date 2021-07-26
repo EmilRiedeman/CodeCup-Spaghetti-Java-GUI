@@ -112,6 +112,11 @@ public class PlayerSelectionPage implements Page {
         );
 
         mainPanel.setLayout(mainLayout);
+
+        for (Component c : submitPanel.getComponents()) {
+            if (!(c instanceof JButton))
+                c.setFont(c.getFont().deriveFont(11f));
+        }
     }
 
     public void updateSettings() {

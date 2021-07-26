@@ -190,7 +190,7 @@ public class PlayerSelection extends JPanel implements ItemListener {
         setLayout(layouts[0]);
 
         for (Component component : getComponents()) {
-            if (component instanceof JTextField) {
+            if (component != title) {
                 component.setFont(component.getFont().deriveFont(11f));
             }
         }
