@@ -163,6 +163,8 @@ public class PlayerSelectionPage implements Page {
         frame.getContentPane().add(mainPanel);
         frame.setTitle("Spaghetti");
         mainPanel.requestFocus();
+        mainPanel.validate();
+        mainPanel.repaint();
     }
 
     @Override

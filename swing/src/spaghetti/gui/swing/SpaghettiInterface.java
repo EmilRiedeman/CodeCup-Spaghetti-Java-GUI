@@ -26,8 +26,8 @@ public class SpaghettiInterface extends JFrame {
         put(9, new Color(170, 170, 170)); // SAMPLE BACKGROUND 2
     }};
     public static final Map<Integer, Color> darkTheme = new HashMap<Integer, Color>(){{
-        put(-2, new Color(5, 5, 5)); // BACKGROUND JFRAME
-        put(-1, new Color(20, 20, 20)); // BACKGROUND BOARD
+        put(-2, new Color(30, 30, 30)); // BACKGROUND JFRAME
+        put(-1, new Color(60, 60, 60)); // BACKGROUND BOARD
         put(0, Color.WHITE);
         put(1, new Color(50, 50, 255));
         put(2, Color.RED);
@@ -36,8 +36,8 @@ public class SpaghettiInterface extends JFrame {
         put(5, Color.GRAY);
         put(6, new Color(200, 200, 205)); // HIGHLIGHTED
         put(7, new Color(170,238,170)); // TARGET HIGHLIGHTED
-        put(8, new Color(10, 10, 10)); // SAMPLE BACKGROUND 1
-        put(9, new Color(15, 15, 15)); // SAMPLE BACKGROUND 2
+        put(8, new Color(43, 43, 44)); // SAMPLE BACKGROUND 1
+        put(9, new Color(60, 63, 65)); // SAMPLE BACKGROUND 2
     }};
     protected Map<Integer, Color> colorPalette;
     protected Page currentPage;
