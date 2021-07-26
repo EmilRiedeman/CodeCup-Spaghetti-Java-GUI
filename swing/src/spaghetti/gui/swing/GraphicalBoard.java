@@ -5,9 +5,7 @@ import spaghetti.game.*;
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.geom.GeneralPath;
 
 import static java.lang.Math.max;
@@ -29,6 +27,11 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
         addMouseMotionListener(this);
         setPreferredSize(new Dimension(parent.getWidth(), parent.getHeight()));
         close();
+        parent.addComponentListener(new ComponentAdapter() {
+            public void componentResized(ComponentEvent componentEvent) {
+                refreshPaint();
+            }
+        });
     }
 
     public void setBoard(Board board) {
@@ -50,6 +53,7 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
         if (board == null) return;
 
         Graphics2D g2 = (Graphics2D) g;
+        g2.translate(getCenterOffsetX(), getCenterOffsetY());
         g2.setBackground(parent.colorPalette.get(-1));
         g2.translate(boardOffsetX, boardOffsetY);
         g2.clearRect(0, 0, getBoardWidth(), getBoardHeight());
@@ -236,6 +240,14 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
         return getBoardWidth() + boardOffsetX * 2 + 16;
     }
 
+    public int getCenterOffsetX() {
+        return (int)Math.round(parent.getWidth() / 2.0 - getTotalWidth() / 2.0);
+    }
+
+    public int getCenterOffsetY() {
+        return 0;
+    }
+
     public int getTotalHeight() {
         return getBoardHeight() + boardOffsetY * 2 + 39;
     }
@@ -393,6 +405,7 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
     @Override
     public void mouseReleased(MouseEvent e) {
         if (!isControllerTurn()) return;
+        e.translatePoint(-getCenterOffsetX(), -getCenterOffsetY());
         if (inSample(e.getPoint())) {
             char t = getTypeFromSample(e.getPoint());
             Point s = getBoardPosition(sample.x, sample.y);
@@ -410,6 +423,7 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
         if (p != null) {
             sample = e.getPoint();
         }
+        e.translatePoint(getCenterOffsetX(), getCenterOffsetY());
         mouseMoved(e);
     }
 
@@ -427,9 +441,8 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        if (!isBoardRunning()) {
-            return;
-        }
+        if (!isBoardRunning()) return;
+        e.translatePoint(-getCenterOffsetX(), -getCenterOffsetY());
         if (inSample(e.getPoint())) {
             highlight = null;
             sampleHighlight = getTypeFromSample(e.getPoint());

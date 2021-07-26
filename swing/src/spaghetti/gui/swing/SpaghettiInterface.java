@@ -3,6 +3,7 @@ package spaghetti.gui.swing;
 import spaghetti.game.Board;
 
 import javax.swing.*;
+import javax.swing.plaf.ColorUIResource;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,20 +58,22 @@ public class SpaghettiInterface extends JFrame {
         return playerSelection;
     }
 
-    public SpaghettiInterface(Board board) {
+    public SpaghettiInterface() {
         super("Spaghetti");
+        final int WIDTH = 614, HEIGHT = 785;
+        setSize(WIDTH, HEIGHT);
+        Dimension size
+                = Toolkit.getDefaultToolkit().getScreenSize();
+        setLocation(size.width/2-WIDTH/2, size.height/2-HEIGHT/2);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setColorPalette(lightTheme);
         setVisible(true);
 
         this.board = new GraphicalBoard(this);
-        this.board.setBoard(board);
 
         this.playerSelection = new PlayerSelectionPage(this);
 
         setPage(this.playerSelection);
-
-        setSize(this.board.getTotalWidth(), this.board.getTotalHeight());
     }
 
     public static void main(String[] args) {
@@ -81,7 +84,6 @@ public class SpaghettiInterface extends JFrame {
         catch (Exception e) {
             e.printStackTrace();
         }
-        Board board = new Board(7, 9);
-        new SpaghettiInterface(board);
+        new SpaghettiInterface();
     }
 }
