@@ -86,10 +86,10 @@ public class PlayerSelection extends JPanel implements ItemListener {
             );
             verticalGroups[i] = (layouts[i].createSequentialGroup()
                     .addComponent(title)
-                    .addComponent(typeSelection, 20, 20, 20)
-                    .addGroup(layouts[i].createParallelGroup()
-                        .addComponent(nameLabel, 20, 20, 20)
-                        .addComponent(nameField, 20, 20, 20)
+                    .addComponent(typeSelection, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layouts[i].createParallelGroup(GroupLayout.Alignment.CENTER)
+                        .addComponent(nameLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(nameField, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                     ).addGap(5, 25, 25)
             );
         }
@@ -107,11 +107,11 @@ public class PlayerSelection extends JPanel implements ItemListener {
         ((GroupLayout.SequentialGroup)verticalGroups[1])
                 .addGroup(layouts[1].createSequentialGroup()
                         .addGroup(layouts[1].createParallelGroup()
-                                .addComponent(serverAddressLabel, 20, 20, 20)
-                                .addComponent(serverAddressField, 20, 20, 20))
+                                .addComponent(serverAddressLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(serverAddressField, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE))
                         .addGroup(layouts[1].createParallelGroup()
-                                .addComponent(serverPortLabel, 20, 20, 20)
-                                .addComponent(serverPortField, 20, 20, 20)));
+                                .addComponent(serverPortLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(serverPortField, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)));
 
         // Bot:
         ActionListener radioListener = e -> {
@@ -164,22 +164,22 @@ public class PlayerSelection extends JPanel implements ItemListener {
                 );
 
         ((GroupLayout.SequentialGroup)verticalGroups[2])
-                .addGroup(layouts[2].createParallelGroup()
-                        .addComponent(execLabel, 20, 20, 20)
+                .addGroup(layouts[2].createParallelGroup(GroupLayout.Alignment.CENTER)
+                        .addComponent(execLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addComponent(execRadio)
-                        .addComponent(execSearchFileButton, 20, 20, 20)
-                        .addComponent(execFileLabel, 20, 20, 20)
+                        .addComponent(execSearchFileButton, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(execFileLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                 )
-                .addGroup(layouts[2].createParallelGroup()
-                        .addComponent(javaLabel, 20, 20, 20)
+                .addGroup(layouts[2].createParallelGroup(GroupLayout.Alignment.CENTER)
+                        .addComponent(javaLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addComponent(javaRadio)
-                        .addComponent(javaSearchFileButton, 20, 20, 20)
-                        .addComponent(javaFileLabel, 20, 20, 20)
+                        .addComponent(javaSearchFileButton, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(javaFileLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                 )
-                .addGroup(layouts[2].createParallelGroup()
-                        .addComponent(otherLabel, 20, 20, 20)
+                .addGroup(layouts[2].createParallelGroup(GroupLayout.Alignment.CENTER)
+                        .addComponent(otherLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addComponent(otherRadio)
-                        .addComponent(otherField, 20, 20, 20)
+                        .addComponent(otherField, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                 );
 
         for (int i = 0; i < 3; ++i) {
@@ -188,12 +188,6 @@ public class PlayerSelection extends JPanel implements ItemListener {
         }
 
         setLayout(layouts[0]);
-
-        for (Component component : getComponents()) {
-            if (component != title) {
-                component.setFont(component.getFont().deriveFont(11f));
-            }
-        }
     }
 
     public BoardController create(GraphicalBoard gb, Board board) {
