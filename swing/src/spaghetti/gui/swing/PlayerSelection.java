@@ -188,12 +188,6 @@ public class PlayerSelection extends JPanel implements ItemListener {
         }
 
         setLayout(layouts[0]);
-
-        for (Component component : getComponents()) {
-            if (component != title) {
-                component.setFont(component.getFont().deriveFont(11f));
-            }
-        }
     }
 
     public BoardController create(GraphicalBoard gb, Board board) {
