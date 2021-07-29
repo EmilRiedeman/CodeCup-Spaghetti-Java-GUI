@@ -74,27 +74,27 @@ public class PlayerSelectionPage implements Page {
                                         )
                                 )
                         )
-
                         .addComponent(submitButton)
         );
 
         submitLayout.setVerticalGroup(
                 submitLayout.createSequentialGroup()
-                        .addGroup(submitLayout.createParallelGroup()
-                                .addComponent(darkModeLabel, 20, 20, 20)
-                                .addComponent(darkModeCheckBox, 20, 20, 20)
+                        .addGap(10)
+                        .addGroup(submitLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                                .addComponent(darkModeLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(darkModeCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                         )
                         .addGap(20)
-                        .addGroup(submitLayout.createParallelGroup()
-                                .addComponent(prePlayedMovesLabel, 20, 20, 20)
-                                .addComponent(prePlayedMovesCheckBox, 20, 20, 20)
+                        .addGroup(submitLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                                .addComponent(prePlayedMovesLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(prePlayedMovesCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                         )
-                        .addGroup(submitLayout.createParallelGroup()
-                                .addComponent(boardSizeLabel, 20, 20, 20)
-                                .addComponent(boardWidthField, 20, 20, 20)
-                                .addComponent(boardHeightField, 20, 20, 20)
+                        .addGroup(submitLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                .addComponent(boardSizeLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(boardWidthField, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(boardHeightField, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                         )
-                        .addComponent(submitButton).addGap(10)
+                        .addComponent(submitButton)
         );
 
         submitPanel.setLayout(submitLayout);
