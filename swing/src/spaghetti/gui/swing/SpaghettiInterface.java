@@ -77,6 +77,7 @@ public class SpaghettiInterface extends JFrame {
     }
 
     public static void main(String[] args) {
+        System.setProperty("awt.useSystemAAFontSettings","on");
         try {
             UIManager.setLookAndFeel(
                     UIManager.getSystemLookAndFeelClassName());
