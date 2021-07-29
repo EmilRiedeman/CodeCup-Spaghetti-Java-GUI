@@ -37,8 +37,6 @@ public class PlayerSelectionPage implements Page {
         this.parent = parent;
 
         mainPanel.setFocusable(true);
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(-10, 0, -10, 0));
-
         selectorPanel.setLayout(new GridLayout(1, 2));
         selectorPanel.add(selectors[0]);
         selectorPanel.add(selectors[1]);
@@ -61,7 +59,6 @@ public class PlayerSelectionPage implements Page {
                                         .addComponent(darkModeLabel)
                                         .addComponent(prePlayedMovesLabel)
                                         .addComponent(boardSizeLabel)
-
                                 )
                                 .addGap(30)
                                 .addGroup(submitLayout.createParallelGroup()
