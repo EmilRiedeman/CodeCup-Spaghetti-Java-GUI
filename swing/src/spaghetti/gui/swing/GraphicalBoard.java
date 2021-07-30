@@ -1,6 +1,7 @@
 package spaghetti.gui.swing;
 
 import spaghetti.game.*;
+import spaghetti.utils.Pair;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
@@ -324,8 +325,9 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
         int x0 = x + gridLineWidth, y0 = y + gridLineWidth, s = tileSize - gridLineWidth * 2;
 
         Point p = new Point(row, col);
+        Pair<Integer, Integer> pos = new Pair<>(row, col);
         if (type != '\0') {
-            drawTileType(g2, type, x0, y0, s, color0, color1, parent.colorPalette.get(-1));
+            drawTileType(g2, type, x0, y0, s, color0, color1, parent.colorPalette.get(pos.equals(board.getLastMove())? 7: -1));
         } else if (p.equals(highlight)) {
             g2.setColor(parent.colorPalette.get(6));
             g2.fillRect(x, y, s + gridLineWidth * 2, s + gridLineWidth * 2);

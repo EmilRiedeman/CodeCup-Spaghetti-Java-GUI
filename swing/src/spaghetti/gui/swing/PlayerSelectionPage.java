@@ -2,8 +2,6 @@ package spaghetti.gui.swing;
 
 import spaghetti.game.Board;
 import spaghetti.game.BoardController;
-import spaghetti.game.BoardListener;
-import spaghetti.utils.Pair;
 
 import javax.swing.*;
 import java.awt.*;
@@ -128,7 +126,7 @@ public class PlayerSelectionPage implements Page {
         boolean human = selectors[0].isLocalHuman() && selectors[1].isLocalHuman();
         if (human) {
             try {
-                board = new Board(Math.min(Integer.parseInt(boardWidthField.getText()), 50), Math.min(Integer.parseInt(boardHeightField.getText()), 50));
+                board = new Board(Math.min(Integer.parseInt(boardWidthField.getText()), 26), Math.min(Integer.parseInt(boardHeightField.getText()), 26));
             } catch (Exception exception) {
                 board = new Board(7, 9);
             }

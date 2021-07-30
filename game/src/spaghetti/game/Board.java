@@ -39,6 +39,7 @@ public class Board {
     protected final BoardController[] controllers = new BoardController[2];
     protected boolean turn = false;
     protected int moveCount = 0;
+    protected Pair<Integer, Integer> lastMove = null;
     protected BoardState currentState = BoardState.PRE_START;
 
     public Board(int width, int height) {
@@ -75,6 +76,10 @@ public class Board {
 
     public int getMoveCount() {
         return moveCount;
+    }
+
+    public Pair<Integer, Integer> getLastMove() {
+        return lastMove;
     }
 
     public boolean getTurn() {
@@ -183,6 +188,7 @@ public class Board {
     }
 
     private void privateStart(BoardController blue, BoardController red) {
+        lastMove = null;
         controllers[0] = blue;
         controllers[1] = red;
         if (!blue.isStartHandler()) blue.setSide(false);
@@ -216,6 +222,7 @@ public class Board {
 
     public void play(Move move, BoardListener player) {
         moveCount++;
+        lastMove = new Pair<>(move.row, move.col);
         tiles[move.row][move.col].type = move.t;
 
         Position[] pos4 = new Position[4];

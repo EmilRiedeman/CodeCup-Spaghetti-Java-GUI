@@ -1,9 +1,6 @@
 package spaghetti.gui.swing;
 
-import spaghetti.game.Board;
-
 import javax.swing.*;
-import javax.swing.plaf.ColorUIResource;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +19,7 @@ public class SpaghettiInterface extends JFrame {
         put(4, new Color(221, 136, 136));
         put(5, Color.GRAY);
         put(6, new Color(255, 255, 237)); // HIGHLIGHTED
-        put(7, new Color(170,238,170)); // TARGET HIGHLIGHTED
+        put(7, new Color(250, 250, 250)); // LAST MOVE HIGHLIGHT
         put(8, new Color(160, 160, 160)); // SAMPLE BACKGROUND 1
         put(9, new Color(170, 170, 170)); // SAMPLE BACKGROUND 2
     }};
@@ -36,7 +33,7 @@ public class SpaghettiInterface extends JFrame {
         put(4, new Color(221, 136, 136));
         put(5, Color.GRAY);
         put(6, new Color(200, 200, 205)); // HIGHLIGHTED
-        put(7, new Color(170,238,170)); // TARGET HIGHLIGHTED
+        put(7, new Color(150, 150, 150)); // LAST MOVE HIGHLIGHT
         put(8, new Color(43, 43, 44)); // SAMPLE BACKGROUND 1
         put(9, new Color(60, 63, 65)); // SAMPLE BACKGROUND 2
     }};
