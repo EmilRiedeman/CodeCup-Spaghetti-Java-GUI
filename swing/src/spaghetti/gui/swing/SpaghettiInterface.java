@@ -57,7 +57,7 @@ public class SpaghettiInterface extends JFrame {
 
     public SpaghettiInterface() {
         super("Spaghetti");
-        final int WIDTH = 614, HEIGHT = 785;
+        final int WIDTH = 614, HEIGHT = 800;
         setSize(WIDTH, HEIGHT);
         Dimension size
                 = Toolkit.getDefaultToolkit().getScreenSize();
