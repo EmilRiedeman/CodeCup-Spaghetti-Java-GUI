@@ -46,7 +46,7 @@ public class BotProgram extends BoardController {
             in = stdout.readLine();
         } catch (IOException e) {
             e.printStackTrace();
-            process.destroy();
+            process.destroyForcibly();
             return;
         }
         try {
@@ -59,7 +59,7 @@ public class BotProgram extends BoardController {
             if (board.getCurrentState() == BoardState.RUNNING) {
                 System.err.println("Bot Program sends wrong move.");
             }
-            process.destroy();
+            process.destroyForcibly();
         }
     }
 
@@ -99,7 +99,7 @@ public class BotProgram extends BoardController {
             process.destroyForcibly();
             return;
         }
-        process.destroy();
+        process.destroyForcibly();
     }
 
     @Override
