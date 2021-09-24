@@ -163,7 +163,8 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
         if (msg != null) {
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
             g2.setColor(parent.colorPalette.get(8));
-            g2.fillRect(50, 50, 100, 30);
+            int space = 5;
+            g2.fillRect(50 - space, 50 - space, msg.length() * charWidth + space*2, charWidth + space*2);
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setFont(font);
             g2.setColor(parent.colorPalette.get(0));
