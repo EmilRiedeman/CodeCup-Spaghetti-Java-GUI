@@ -55,13 +55,14 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
 
         Graphics2D g2 = (Graphics2D) g;
         g2.translate(getCenterOffsetX(), getCenterOffsetY());
-        g2.setBackground(parent.colorPalette.get(-1));
         g2.translate(boardOffsetX, boardOffsetY);
+        g2.setBackground(parent.colorPalette.get(-1));
         g2.clearRect(0, 0, getBoardWidth(), getBoardHeight());
 
         // Alphabet:
         int charWidth = g2.getFontMetrics(font).charWidth('a');
-        int charHeight = charWidth * 2;
+        int bottomY = getBoardHeight() + boardOffsetY;
+        int bottomTextY = bottomY - charWidth / 2;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setFont(font);
         g2.setColor(parent.colorPalette.get(0));
@@ -70,19 +71,18 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
             if (i < board.width) {
                 g2.drawChars(new char[]{c},
                         0, 1,
-                        boardOffsetX + i * tileSize() - charWidth,
-                        -(boardOffsetY / 2));
+                        i * tileSize() - charWidth/2 + tileSize()/2,
+                        -boardOffsetY/2);
             }
             if (i < board.height) {
                 g2.drawChars(new char[]{c},
                         0, 1,
-                        -(boardOffsetX / 2) - charWidth,
-                        boardOffsetY + i * tileSize());
+                        -boardOffsetX/2-charWidth,
+                        i * tileSize() + tileSize()/2 + charWidth /2);
             }
         }
 
         if (board.getCurrentState() != BoardState.PRE_START) {
-            int bottomTextY = board.height * tileSize() + boardOffsetY - charHeight / 2;
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             // Score:
             String scoreBlue = "" + board.scores[0], scoreRed = "" + board.scores[1];
@@ -129,34 +129,30 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
         // Borders:
         g2.setStroke(new BasicStroke(thick * 2));
         g2.setColor(parent.colorPalette.get(5));
-        g2.drawLine(-thick, -thick, getBoardWidth()+thick, -thick);
-        g2.drawLine(-thick, getBoardHeight()+thick, getBoardWidth()+thick, getBoardHeight()+thick);
+        g2.drawLine(-thick, -thick, getBoardWidth() + thick, -thick);
+        g2.drawLine(-thick, getBoardHeight() + thick, getBoardWidth() + thick, getBoardHeight() + thick);
 
         g2.setColor(parent.colorPalette.get(1));
-        g2.drawLine(-thick, -thick, -thick, getBoardHeight()+thick);
+        g2.drawLine(-thick, -thick, -thick, getBoardHeight() + thick);
 
         g2.setColor(parent.colorPalette.get(2));
-        g2.drawLine(getBoardWidth()+thick, -thick, getBoardWidth()+thick, getBoardHeight()+thick);
+        g2.drawLine(getBoardWidth() + thick, -thick, getBoardWidth() + thick, getBoardHeight() + thick);
 
         // Turn Circles:
         if (isBoardRunning()) {
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            Point[] p = new Point[] {
-                    new Point(
-                            getBoardWidth() / 2 - turnCircleSize + turnCircleOverlap,
-                            getBoardHeight() + boardOffsetY / 2 - turnCircleSize / 2
-                    ), new Point(
-                    getBoardWidth() / 2 - turnCircleOverlap,
-                    getBoardHeight() + boardOffsetY / 2 - turnCircleSize / 2
-            )};
+            int[] x = {
+                    getBoardWidth() / 2 - turnCircleSize + turnCircleOverlap,
+                    getBoardWidth() / 2 - turnCircleOverlap
+            };
             Color[] c = new Color[] {
                     parent.colorPalette.get(1),
                     parent.colorPalette.get(2)
             };
             int i = board.getTurn()? 0: 1;
-            for (int x : new int[]{i, 1-i}) {
-                g2.setColor(c[x]);
-                g2.fillArc(p[x].x, p[x].y, turnCircleSize, turnCircleSize, 0, 360);
+            for (int i1 : new int[]{i, 1-i}) {
+                g2.setColor(c[i1]);
+                g2.fillArc(x[i1], bottomY - thick - boardOffsetY/2, turnCircleSize, turnCircleSize, 0, 360);
             }
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         }
@@ -171,7 +167,7 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setFont(font);
             g2.setColor(parent.colorPalette.get(0));
-            g2.drawString(msg, 50, 50 + charHeight);
+            g2.drawString(msg, 50, 50 + charWidth);
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         }
 
