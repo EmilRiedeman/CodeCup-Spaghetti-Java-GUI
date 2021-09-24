@@ -338,7 +338,7 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
 
         g2.setStroke(new BasicStroke(gridLineWidth));
 
-        g2.setColor(Color.BLACK);
+        g2.setColor(parent.colorPalette.get(0));
         if (type != '\0') g2.drawRect(x, y, tileSize-gridLineWidth, tileSize-gridLineWidth);
     }
 
