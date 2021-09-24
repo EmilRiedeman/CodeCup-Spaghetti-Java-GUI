@@ -6,6 +6,7 @@ import spaghetti.game.BoardController;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.Random;
 
 public class PlayerSelectionPage implements Page {
     public final SpaghettiInterface parent;
@@ -21,6 +22,8 @@ public class PlayerSelectionPage implements Page {
     public final JButton submitButton = new JButton("Start");
     public final JLabel darkModeLabel = new JLabel("Dark Mode:");
     public final JCheckBox darkModeCheckBox = new JCheckBox();
+    public final JLabel matchLabel = new JLabel("Match:");
+    public final JComboBox<String> matchComboBox = new JComboBox<>(new String[]{"Player 1 vs Player 2", "Player 2 vs Player 1", "Random"});
     public final JLabel prePlayedMovesLabel = new JLabel("Pre Played Moves:");
     public final JCheckBox prePlayedMovesCheckBox = new JCheckBox() {{
         setSelected(true);
@@ -55,12 +58,14 @@ public class PlayerSelectionPage implements Page {
                         .addGroup(submitLayout.createSequentialGroup()
                                 .addGroup(submitLayout.createParallelGroup()
                                         .addComponent(darkModeLabel)
+                                        .addComponent(matchLabel)
                                         .addComponent(prePlayedMovesLabel)
                                         .addComponent(boardSizeLabel)
                                 )
                                 .addGap(30)
                                 .addGroup(submitLayout.createParallelGroup()
                                         .addComponent(darkModeCheckBox)
+                                        .addComponent(matchComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(prePlayedMovesCheckBox)
                                         .addGroup(submitLayout.createSequentialGroup()
                                                 .addComponent(boardWidthField, 50, 50, 50)
@@ -80,6 +85,10 @@ public class PlayerSelectionPage implements Page {
                                 .addComponent(darkModeCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                         )
                         .addGap(20)
+                        .addGroup(submitLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                                .addComponent(matchLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(matchComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+                        )
                         .addGroup(submitLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
                                 .addComponent(prePlayedMovesLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                                 .addComponent(prePlayedMovesCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
@@ -110,11 +119,14 @@ public class PlayerSelectionPage implements Page {
     }
 
     public void updateSettings() {
-        boolean humanOnly = selectors[0].isLocalHuman() && selectors[1].isLocalHuman();
-        prePlayedMovesCheckBox.setEnabled(humanOnly);
-        boardHeightField.setEnabled(humanOnly);
-        boardWidthField.setEnabled(humanOnly);
-        if (!humanOnly) {
+        submitButton.setEnabled(!(selectors[0].isStartHandler() && selectors[1].isStartHandler()));
+        matchComboBox.setEnabled(!(selectors[0].isStartHandler() || selectors[1].isStartHandler()));
+
+        boolean flexible = selectors[0].isFlexible() && selectors[1].isFlexible();
+        prePlayedMovesCheckBox.setEnabled(flexible);
+        boardHeightField.setEnabled(flexible);
+        boardWidthField.setEnabled(flexible);
+        if (!flexible) {
             prePlayedMovesCheckBox.setSelected(true);
             boardWidthField.setText("7");
             boardHeightField.setText("9");
@@ -123,8 +135,8 @@ public class PlayerSelectionPage implements Page {
 
     private void onSubmit(ActionEvent actionEvent) {
         Board board;
-        boolean human = selectors[0].isLocalHuman() && selectors[1].isLocalHuman();
-        if (human) {
+        boolean flexible = selectors[0].isFlexible() && selectors[1].isFlexible();
+        if (flexible) {
             try {
                 board = new Board(Math.min(Integer.parseInt(boardWidthField.getText()), 26), Math.min(Integer.parseInt(boardHeightField.getText()), 26));
             } catch (Exception exception) {
@@ -139,7 +151,13 @@ public class PlayerSelectionPage implements Page {
         if (c1 != null && c2 != null) {
             parent.setPage(parent.board);
             if (!(c1.isStartHandler() || c2.isStartHandler())) {
-                board.start(prePlayedMovesCheckBox.isSelected() || !human, c1, c2); // todo side
+                BoardController blue, red;
+                boolean b;
+                if (matchComboBox.getSelectedIndex() == 2) b = new Random().nextBoolean();
+                else b = matchComboBox.getSelectedIndex() == 0;
+                blue = b? c1: c2;
+                red = b? c2: c1;
+                board.start(prePlayedMovesCheckBox.isSelected() || !flexible, blue, red);
             }
             board.announceControllers(c1, c2);
         } else {

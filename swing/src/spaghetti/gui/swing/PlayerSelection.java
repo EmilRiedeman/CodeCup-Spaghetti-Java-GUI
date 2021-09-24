@@ -209,8 +209,6 @@ public class PlayerSelection extends JPanel implements ItemListener {
                 if (execRadio.isSelected()) {
                     if (fileExec != null && fileExec.exists())
                         r = new BotProgram(name, fileExec.getAbsolutePath(), board);
-                    else
-                        r = null;
                 } else if (javaRadio.isSelected())
                     if (fileJava != null && fileJava.exists()) {
                         if (Utils.getFileExtension(fileJava).equals("class"))
@@ -226,8 +224,12 @@ public class PlayerSelection extends JPanel implements ItemListener {
         return r;
     }
 
-    public boolean isLocalHuman() {
+    public boolean isFlexible() {
         return typeSelection.getSelectedIndex() == 0;
+    }
+
+    public boolean isStartHandler() {
+        return typeSelection.getSelectedIndex() == 1;
     }
 
     @Override
