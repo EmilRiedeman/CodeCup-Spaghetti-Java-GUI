@@ -62,11 +62,12 @@ public class Board {
 
     public void removeBoardListener(BoardListener l) {
         listeners.remove(l);
-        if (currentState != BoardState.OVER && (controllers[0] == l || controllers[1] == l)) close();
+        if (currentState != BoardState.CLOSED && (controllers[0] == l || controllers[1] == l)) close();
     }
 
     public void close() {
-        currentState = BoardState.OVER;
+        System.err.println("Closed Game");
+        currentState = BoardState.CLOSED;
         for (BoardListener l : listeners) l.close();
     }
 

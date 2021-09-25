@@ -35,16 +35,18 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
         });
     }
 
-    public void setBoard(Board board) {
-        if (this.board != null) {
-            this.board.removeBoardListener(this);
-            for (BoardListener l : this.board.getBoardListeners())
+    public void setBoard(Board b) {
+        if (board != null) {
+            board.removeBoardListener(this);
+            for (BoardListener l : board.getBoardListeners()) {
                 if (isChild(l)) {
-                    this.board.removeBoardListener(l);
+                    board.removeBoardListener(l);
                 }
+            }
+            if (board.getCurrentState() != BoardState.CLOSED) board.close();
         }
-        this.board = board;
-        if (board != null) board.addBoardListener(this);
+        this.board = b;
+        if (b != null) b.addBoardListener(this);
     }
 
     @Override

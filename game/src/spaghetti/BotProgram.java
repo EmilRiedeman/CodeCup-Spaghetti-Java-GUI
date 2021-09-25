@@ -8,15 +8,18 @@ public class BotProgram extends BoardController {
 
     protected BufferedReader stdout;
     protected BufferedWriter stdin;
+    protected BufferedReader stderr;
+    protected final File logFile;
     protected Process process;
     protected boolean side;
     public final String cmd;
 
-    public BotProgram(String name, String command, Board board) {
+    public BotProgram(String name, String command, Board board, File logFile) {
         super(name, board);
         System.err.println(command);
         board.addBoardListener(this);
 
+        this.logFile = logFile;
         cmd = command;
 
         setup();
@@ -32,6 +35,37 @@ public class BotProgram extends BoardController {
         }
         stdout = new BufferedReader(new InputStreamReader(process.getInputStream()));
         stdin = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+        if (logFile == null || logFile.isDirectory()) return;
+        try {
+            if (!logFile.createNewFile()) System.err.println("Overwriting \"" + logFile.getAbsolutePath() + "\"");
+        } catch (IOException e) {
+            System.err.println("Log file creation failed!");
+            e.printStackTrace();
+            return;
+        }
+        stderr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+        new Thread(() -> {
+            FileWriter writer;
+            try {
+                writer = new FileWriter(logFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+            while (board.getCurrentState() != BoardState.CLOSED && board.getCurrentState() != BoardState.OVER) {
+                try {
+                    writer.write(stderr.read());
+                } catch (IOException e) {
+                    break;
+                }
+            }
+            try {
+                writer.close();
+            } catch (IOException e) {
+                System.err.println("Failed to close log file.");
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     public void listen() {
@@ -46,7 +80,7 @@ public class BotProgram extends BoardController {
             in = stdout.readLine();
         } catch (IOException e) {
             e.printStackTrace();
-            process.destroyForcibly();
+            close();
             return;
         }
         try {
@@ -58,8 +92,8 @@ public class BotProgram extends BoardController {
         } catch (NullPointerException e) {
             if (board.getCurrentState() == BoardState.RUNNING) {
                 System.err.println("Bot Program sends wrong move.");
+                close();
             }
-            process.destroyForcibly();
         }
     }
 
@@ -71,6 +105,7 @@ public class BotProgram extends BoardController {
                 stdin.flush();
             } catch (IOException e) {
                 e.printStackTrace();
+                close();
             }
         }
     }
@@ -92,13 +127,22 @@ public class BotProgram extends BoardController {
 
     @Override
     public void close() {
+        if (board.getCurrentState() != BoardState.CLOSED) {
+            board.removeBoardListener(this);
+        }
         try {
             stdin.write("Quit\n");
             stdin.flush();
-        } catch (IOException e) {
-            process.destroyForcibly();
-            return;
+        } catch (IOException ignored) {
         }
+
+        try {
+            if (stderr != null) stderr.close();
+            stdout.close();
+            stdin.close();
+        } catch (IOException ignored) {
+        }
+
         process.destroyForcibly();
     }
 

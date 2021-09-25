@@ -38,7 +38,6 @@ public class PlayerSelection extends JPanel implements ItemListener {
     public final JTextField serverPortField = new JTextField("12345");
 
     // Bot:
-    //new JRadioButtonMenuItem
     public final JRadioButton javaRadio = new JRadioButton();
     public final JRadioButton execRadio = new JRadioButton();
     public final JRadioButton otherRadio = new JRadioButton();
@@ -49,6 +48,18 @@ public class PlayerSelection extends JPanel implements ItemListener {
         add(execRadio);
         add(javaRadio);
         add(otherRadio);
+    }};
+
+    public final JLabel logLabel = new JLabel("Write stderr to log file:");
+    public final JCheckBox logCheckBox = new JCheckBox();
+    public final JTextField logTextField = new JTextField("log.txt") {{
+        setEnabled(false);
+    }};
+    public final JButton logSearchDirButton = new JButton("Search Directory") {{
+        setEnabled(false);
+    }};
+    public final JFileChooser logDirChooser = new JFileChooser(Paths.get(".").toFile()) {{
+        setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
     }};
 
     public final JButton execSearchFileButton = new JButton("Search File");
@@ -138,27 +149,48 @@ public class PlayerSelection extends JPanel implements ItemListener {
             if (fileJava != null) javaFileLabel.setText(fileJava.getName());
             else javaFileLabel.setText("-");
         });
+
+        logSearchDirButton.addActionListener(e -> logDirChooser.showOpenDialog(null));
+        logCheckBox.addActionListener(e -> {
+            logTextField.setEnabled(logCheckBox.isSelected());
+            logSearchDirButton.setEnabled(logCheckBox.isSelected());
+        });
+
         ((GroupLayout.ParallelGroup)horizontalGroups[2])
-                .addGroup(layouts[2].createSequentialGroup()
-                        .addGroup(layouts[2].createParallelGroup()
-                                .addComponent(execLabel)
-                                .addComponent(javaLabel)
-                                .addComponent(otherLabel)
-                        )
-                        .addGroup(layouts[2].createParallelGroup()
-                                .addComponent(execRadio)
-                                .addComponent(javaRadio)
-                                .addComponent(otherRadio)
-                        )
-                        .addGroup(layouts[2].createParallelGroup()
-                                .addGroup(layouts[2].createSequentialGroup()
-                                        .addComponent(execSearchFileButton)
-                                        .addComponent(execFileLabel, 20, 20, Short.MAX_VALUE)
-                                ).addGroup(layouts[2].createSequentialGroup()
-                                        .addComponent(javaSearchFileButton)
-                                        .addComponent(javaFileLabel, 20, 20, Short.MAX_VALUE)
-                                ).addGroup(layouts[2].createSequentialGroup()
-                                        .addComponent(otherField, 20, 20, Short.MAX_VALUE)
+                .addGroup(layouts[2].createParallelGroup()
+                        .addGroup(layouts[2].createSequentialGroup()
+                                    .addGroup(layouts[2].createParallelGroup()
+                                            .addComponent(execLabel)
+                                            .addComponent(javaLabel)
+                                            .addComponent(otherLabel)
+                                    )
+                                    .addGroup(layouts[2].createParallelGroup()
+                                            .addComponent(execRadio)
+                                            .addComponent(javaRadio)
+                                            .addComponent(otherRadio)
+                                    )
+                                    .addGroup(layouts[2].createParallelGroup()
+                                            .addGroup(layouts[2].createSequentialGroup()
+                                                    .addComponent(execSearchFileButton)
+                                                    .addComponent(execFileLabel, 20, 20, Short.MAX_VALUE)
+                                            ).addGroup(layouts[2].createSequentialGroup()
+                                                    .addComponent(javaSearchFileButton)
+                                                    .addComponent(javaFileLabel, 20, 20, Short.MAX_VALUE)
+                                            ).addGroup(layouts[2].createSequentialGroup()
+                                                    .addComponent(otherField, 20, 20, Short.MAX_VALUE)
+                                            )
+                                    )
+                        ).addGroup(layouts[2].createSequentialGroup()
+                                .addGroup(layouts[2].createParallelGroup(GroupLayout.Alignment.CENTER)
+                                        .addGroup(layouts[2].createSequentialGroup()
+                                                .addComponent(logLabel)
+                                                .addComponent(logCheckBox)
+
+                                        )
+                                        .addGroup(layouts[2].createSequentialGroup()
+                                                .addComponent(logTextField, 40, 40, Short.MAX_VALUE)
+                                                .addComponent(logSearchDirButton, 20, 20, Short.MAX_VALUE)
+                                        )
                                 )
                         )
                 );
@@ -180,6 +212,15 @@ public class PlayerSelection extends JPanel implements ItemListener {
                         .addComponent(otherLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addComponent(otherRadio)
                         .addComponent(otherField, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+                )
+                .addGap(5, 25, 25)
+                .addGroup(layouts[2].createParallelGroup(GroupLayout.Alignment.CENTER)
+                        .addComponent(logLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(logCheckBox)
+                )
+                .addGroup(layouts[2].createParallelGroup(GroupLayout.Alignment.CENTER)
+                        .addComponent(logSearchDirButton, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(logTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                 );
 
         for (int i = 0; i < 3; ++i) {
@@ -206,19 +247,26 @@ public class PlayerSelection extends JPanel implements ItemListener {
                 }
                 break;
             case 2:
+                String cmd = null;
                 if (execRadio.isSelected()) {
                     if (fileExec != null && fileExec.exists())
-                        r = new BotProgram(name, fileExec.getAbsolutePath(), board);
-                } else if (javaRadio.isSelected())
+                        cmd = fileExec.getAbsolutePath();
+                } else if (javaRadio.isSelected()) {
                     if (fileJava != null && fileJava.exists()) {
+                        String javaExe = "" + '"' + System.getProperty("java.home")
+                                + "\\bin\\java.exe\"";
                         if (Utils.getFileExtension(fileJava).equals("class"))
-                            r = new BotProgram(name, "" + '"' + System.getProperty("java.home")
-                                    + "\\bin\\java.exe\" -classpath \"" + fileJava.getParent() +
-                                    "\" " + fileJava.getName().replaceFirst("[.][^.]+$", ""), board);
+                            cmd = javaExe + " -classpath \"" + fileJava.getParent() +
+                                    "\" " + fileJava.getName().replaceFirst("[.][^.]+$", "");
                         else if (Utils.getFileExtension(fileJava).equals("jar"))
-                            r = new BotProgram(name, "" + '"' + System.getProperty("java.home")
-                                    + "\\bin\\java.exe\" -jar \"" + fileJava.getAbsolutePath() + "\"", board);
+                            cmd = javaExe + " -jar \"" + fileJava.getAbsolutePath() + "\"";
                     }
+                } else {
+                    cmd = otherField.getText();
+                }
+                if (cmd != null) {
+                    r = new BotProgram(name, cmd, board, logCheckBox.isSelected()? new File(logDirChooser.getSelectedFile(), logTextField.getText()): null);
+                }
                 break;
         }
         return r;
@@ -267,6 +315,11 @@ public class PlayerSelection extends JPanel implements ItemListener {
                     otherRadio.setVisible(true);
                     otherLabel.setVisible(true);
                     otherField.setVisible(true);
+
+                    logCheckBox.setVisible(true);
+                    logLabel.setVisible(true);
+                    logTextField.setVisible(true);
+                    logSearchDirButton.setVisible(true);
                     break;
             }
             revalidate();
