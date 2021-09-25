@@ -85,7 +85,7 @@ public class BotProgram extends BoardController {
         }
         try {
             Move move = new Move(in);
-            if (board.inBoard(move.row, move.col) && !board.isOccupied(move.row, move.col)) {
+            if (board.inBoard(move.row, move.col) && board.getControllerTurn() == this && !board.isOccupied(move.row, move.col)) {
                 board.play(move, this);
             }
             else throw new NullPointerException();

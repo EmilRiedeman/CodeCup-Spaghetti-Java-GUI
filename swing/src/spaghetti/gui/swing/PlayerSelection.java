@@ -253,13 +253,26 @@ public class PlayerSelection extends JPanel implements ItemListener {
                         cmd = fileExec.getAbsolutePath();
                 } else if (javaRadio.isSelected()) {
                     if (fileJava != null && fileJava.exists()) {
-                        String javaExe = "" + '"' + System.getProperty("java.home")
-                                + "\\bin\\java.exe\"";
-                        if (Utils.getFileExtension(fileJava).equals("class"))
-                            cmd = javaExe + " -classpath \"" + fileJava.getParent() +
-                                    "\" " + fileJava.getName().replaceFirst("[.][^.]+$", "");
-                        else if (Utils.getFileExtension(fileJava).equals("jar"))
-                            cmd = javaExe + " -jar \"" + fileJava.getAbsolutePath() + "\"";
+                        String javaExe = "java";
+                        if (Utils.getFileExtension(fileJava).equals("class")) {
+                            String dir = fileJava.getParent();
+                            if (System.getProperty("os.name").startsWith("Windows")) {
+                                dir = '"' + dir + '"';
+                            } else {
+                                dir = dir.replaceAll(" ", "\\\\ ");
+                            }
+                            cmd = javaExe + " -classpath " + dir +
+                                    " " + fileJava.getName().replaceFirst("[.][^.]+$", "");
+                        }
+                        else if (Utils.getFileExtension(fileJava).equals("jar")) {
+                            String file = fileJava.getAbsolutePath();
+                            if (System.getProperty("os.name").startsWith("Windows")) {
+                                file = '"' + file + '"';
+                            } else {
+                                file = file.replaceAll(" ", "\\\\ ");
+                            }
+                            cmd = javaExe + " -jar " + file + "";
+                        }
                     }
                 } else {
                     cmd = otherField.getText();

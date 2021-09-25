@@ -68,7 +68,8 @@ public class Board {
     public void close() {
         System.err.println("Closed Game");
         currentState = BoardState.CLOSED;
-        for (BoardListener l : listeners) l.close();
+        controllers[0].close();
+        controllers[1].close();
     }
 
     public BoardState getCurrentState() {
