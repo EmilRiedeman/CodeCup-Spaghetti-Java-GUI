@@ -74,7 +74,9 @@ public class PlayerSelection extends JPanel implements ItemListener {
     public final JFileChooser javaFileChooser = new JFileChooser(Paths.get(".").toFile());
     public File fileJava = null;
 
-    public final JTextField otherField = new JTextField();
+    public final JTextField otherField = new JTextField() {{
+        setEnabled(false);
+    }};
 
     public PlayerSelection(String text, PlayerSelectionPage p) {
         this.parent = p;
@@ -128,6 +130,7 @@ public class PlayerSelection extends JPanel implements ItemListener {
         ActionListener radioListener = e -> {
             execSearchFileButton.setEnabled(e.getSource() == execRadio);
             javaSearchFileButton.setEnabled(e.getSource() == javaRadio);
+            otherField.setEnabled(e.getSource() == otherRadio);
         };
         execRadio.addActionListener(radioListener);
         javaRadio.addActionListener(radioListener);
