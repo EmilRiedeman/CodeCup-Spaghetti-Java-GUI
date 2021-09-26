@@ -62,18 +62,30 @@ public class Board {
 
     public void removeBoardListener(BoardListener l) {
         listeners.remove(l);
-        if (currentState != BoardState.CLOSED && (controllers[0] == l || controllers[1] == l)) close();
+        if (controllers[0] == l || controllers[1] == l) close();
     }
 
     public void close() {
-        System.err.println("Closed Game");
-        currentState = BoardState.CLOSED;
-        controllers[0].close();
-        controllers[1].close();
+        if (currentState != BoardState.OVER) {
+            System.err.println("Closed Game");
+            setCurrentState(BoardState.OVER);
+            for (int i = 0; i < 2; ++i) {
+                try {
+                    if (controllers[i] != null) controllers[i].close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public BoardState getCurrentState() {
         return currentState;
+    }
+
+    protected void setCurrentState(BoardState state) {
+        currentState = state;
+        for (BoardListener l : listeners) l.onBoardStateChange(state);
     }
 
     public int getMoveCount() {
@@ -195,8 +207,7 @@ public class Board {
         controllers[1] = red;
         if (!blue.isStartHandler()) blue.setSide(false);
         if (!red.isStartHandler()) red.setSide(true);
-        currentState = BoardState.RUNNING;
-        for (BoardListener l : listeners) l.onGameStart();
+        setCurrentState(BoardState.RUNNING);
     }
 
     public void start(boolean prePlayedMoves, BoardController blue, BoardController red) {
@@ -288,7 +299,7 @@ public class Board {
             if (choose_best) break;
         }
 
-        if (moveCount == width * height) currentState = BoardState.OVER;
+        if (moveCount == width * height) close();
         turn = !turn;
         for (BoardListener listener : listeners) listener.registerMove(move, player);
     }

@@ -2,6 +2,8 @@ package spaghetti.gui.swing;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,7 +64,18 @@ public class SpaghettiInterface extends JFrame {
         Dimension size
                 = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation(size.width/2-WIDTH/2, size.height/2-HEIGHT/2);
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (board.board != null) {
+                    try {
+                        board.board.close();
+                    } catch (Exception ignore) {
+                    }
+                }
+                System.exit(0);
+            }
+        });
         setColorPalette(lightTheme);
         setVisible(true);
 

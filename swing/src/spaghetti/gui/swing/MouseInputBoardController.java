@@ -2,6 +2,7 @@ package spaghetti.gui.swing;
 
 import spaghetti.game.BoardController;
 import spaghetti.game.BoardListener;
+import spaghetti.game.BoardState;
 import spaghetti.game.Move;
 
 public class MouseInputBoardController extends BoardController {
@@ -22,7 +23,7 @@ public class MouseInputBoardController extends BoardController {
     }
 
     @Override
-    public void onGameStart() {
+    public void onBoardStateChange(BoardState newState) {
     }
 
     @Override

@@ -2,6 +2,7 @@ package spaghetti;
 
 import spaghetti.game.*;
 
+import javax.swing.*;
 import java.io.*;
 
 public class BotProgram extends BoardController {
@@ -16,7 +17,6 @@ public class BotProgram extends BoardController {
 
     public BotProgram(String name, String command, Board board, File logFile) {
         super(name, board);
-        System.err.println(command);
         board.addBoardListener(this);
 
         this.logFile = logFile;
@@ -31,6 +31,7 @@ public class BotProgram extends BoardController {
             process = Runtime.getRuntime().exec(cmd);
         } catch (IOException e){
             System.err.println(e.getMessage());
+            JOptionPane.showMessageDialog(null, e.getMessage());
             return;
         }
         stdout = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -52,7 +53,7 @@ public class BotProgram extends BoardController {
                 e.printStackTrace();
                 return;
             }
-            while (board.getCurrentState() != BoardState.CLOSED && board.getCurrentState() != BoardState.OVER) {
+            while (board.getCurrentState() != BoardState.OVER) {
                 try {
                     writer.write(stderr.read());
                 } catch (IOException e) {
@@ -91,8 +92,10 @@ public class BotProgram extends BoardController {
             else throw new NullPointerException();
         } catch (NullPointerException e) {
             if (board.getCurrentState() == BoardState.RUNNING) {
-                System.err.println("Bot Program sends wrong move.");
-                close();
+                String msg = "Bot " + name + " sends wrong move or crashes.";
+                System.err.println(msg);
+                JOptionPane.showMessageDialog(null, msg);
+                board.close();
             }
         }
     }
@@ -104,8 +107,8 @@ public class BotProgram extends BoardController {
                 stdin.write(m.toString() + "\n");
                 stdin.flush();
             } catch (IOException e) {
-                e.printStackTrace();
-                close();
+                if (board.getCurrentState() != BoardState.OVER) e.printStackTrace();
+                board.close();
             }
         }
     }
@@ -115,21 +118,20 @@ public class BotProgram extends BoardController {
     }
 
     @Override
-    public void onGameStart() {
-        if (side) return;
-        try {
-            stdin.write("Start\n");
-            stdin.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
+    public void onBoardStateChange(BoardState newState) {
+        if (newState == BoardState.RUNNING) {
+            if (side) return;
+            try {
+                stdin.write("Start\n");
+                stdin.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     @Override
     public void close() {
-        if (board.getCurrentState() != BoardState.CLOSED) {
-            board.removeBoardListener(this);
-        }
         try {
             stdin.write("Quit\n");
             stdin.flush();

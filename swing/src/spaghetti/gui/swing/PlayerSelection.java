@@ -5,7 +5,6 @@ import spaghetti.game.BoardController;
 import spaghetti.networking.client.ServerConnection;
 import spaghetti.utils.*;
 import spaghetti.BotProgram;
-import spaghetti.game.BoardListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 
 public class PlayerSelection extends JPanel implements ItemListener {
@@ -242,8 +242,9 @@ public class PlayerSelection extends JPanel implements ItemListener {
                 try {
                     r = new ServerConnection(serverAddressField.getText(), Integer.parseInt(serverPortField.getText()),
                             board);
-                } catch (Exception e) {
+                } catch (IOException e) {
                     e.printStackTrace();
+                    JOptionPane.showMessageDialog(null, e.getMessage());
                 }
                 break;
             case 2:

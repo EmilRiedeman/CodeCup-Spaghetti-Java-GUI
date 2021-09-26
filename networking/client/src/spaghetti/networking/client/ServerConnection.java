@@ -1,36 +1,29 @@
 package spaghetti.networking.client;
 
-import spaghetti.game.Board;
-import spaghetti.game.BoardController;
-import spaghetti.game.BoardListener;
-import spaghetti.game.Move;
+import spaghetti.game.*;
 import spaghetti.networking.ServerPacketType;
 
+import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
 
 public class ServerConnection extends BoardController implements Runnable {
 
-    protected boolean connected = false;
+    protected boolean connected = true;
     public Socket socket;
     public ObjectInputStream in;
     public ObjectOutputStream out;
 
-    public ServerConnection(String address, int port, Board b) {
+    public ServerConnection(String address, int port, Board b) throws IOException {
         super(b);
-        try {
-            socket = new Socket(address, port);
 
-            out = new ObjectOutputStream(socket.getOutputStream());
-            in = new ObjectInputStream(socket.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
+        socket = new Socket(address, port);
+
+        out = new ObjectOutputStream(socket.getOutputStream());
+        in = new ObjectInputStream(socket.getInputStream());
 
         board.addBoardListener(this);
 
-        connected = true;
         System.out.printf("Connected to %s:%s%n", address, port);
 
         new Thread(this).start();
@@ -56,6 +49,7 @@ public class ServerConnection extends BoardController implements Runnable {
             e.printStackTrace();
         }
         board.removeBoardListener(this);
+        JOptionPane.showMessageDialog(null, "Disconnected.");
     }
 
     @Override
@@ -70,8 +64,7 @@ public class ServerConnection extends BoardController implements Runnable {
     }
 
     @Override
-    public void onGameStart() {
-        assert false;
+    public void onBoardStateChange(BoardState newState) {
     }
 
     @Override

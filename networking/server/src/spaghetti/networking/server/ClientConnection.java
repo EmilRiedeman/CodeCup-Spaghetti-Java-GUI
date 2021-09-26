@@ -2,6 +2,7 @@ package spaghetti.networking.server;
 
 import spaghetti.game.BoardController;
 import spaghetti.game.BoardListener;
+import spaghetti.game.BoardState;
 import spaghetti.game.Move;
 import spaghetti.networking.ClientPacketType;
 import spaghetti.networking.ServerPacketType;
@@ -56,8 +57,8 @@ public class ClientConnection extends BoardController {
     }
 
     @Override
-    public void onGameStart() {
-        send(ServerPacketType.START_GAME);
+    public void onBoardStateChange(BoardState newState) {
+        if (newState == BoardState.RUNNING) send(ServerPacketType.START_GAME);
     }
 
     @Override

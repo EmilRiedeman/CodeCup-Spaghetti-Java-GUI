@@ -27,7 +27,6 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
         addMouseListener(this);
         addMouseMotionListener(this);
         setPreferredSize(new Dimension(parent.getWidth(), parent.getHeight()));
-        close();
         parent.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent componentEvent) {
                 refreshPaint();
@@ -38,12 +37,7 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
     public void setBoard(Board b) {
         if (board != null) {
             board.removeBoardListener(this);
-            for (BoardListener l : board.getBoardListeners()) {
-                if (isChild(l)) {
-                    board.removeBoardListener(l);
-                }
-            }
-            if (board.getCurrentState() != BoardState.CLOSED) board.close();
+            board.close();
         }
         this.board = b;
         if (b != null) b.addBoardListener(this);
@@ -365,15 +359,8 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
     }
 
     @Override
-    public void onGameStart() {
+    public void onBoardStateChange(BoardState newState) {
         refreshPaint();
-    }
-
-    @Override
-    public void close() {
-        setBoard(null);
-        sample = null;
-        highlight = null;
     }
 
     public boolean isChild(BoardListener l) {
@@ -462,6 +449,9 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
         frame.setTitle("Spaghetti (Press Esc to go to Start Page)");
         frame.getContentPane().add(this);
         addKeyListener(this);
+
+        sample = null;
+
         refreshPaint();
         requestFocus();
     }
@@ -471,7 +461,7 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
         frame.getContentPane().removeAll();
         removeKeyListener(this);
         parent.repaint();
-        close();
+        board.close();
     }
 
     @Override

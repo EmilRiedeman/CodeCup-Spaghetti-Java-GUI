@@ -27,4 +27,6 @@ public abstract class BoardController implements BoardListener {
     public void setSide(boolean side) { // occurs after pre played moves
         this.side = side;
     }
+
+    public abstract void close();
 }

@@ -163,6 +163,7 @@ public class PlayerSelectionPage implements Page {
         } else {
             if (c1 != null) c1.close();
             if (c2 != null) c2.close();
+            parent.board.setBoard(null);
         }
     }
 
