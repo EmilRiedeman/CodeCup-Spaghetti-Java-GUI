@@ -117,10 +117,10 @@ public class PlayerSelection extends JPanel implements ItemListener {
 
         ((GroupLayout.SequentialGroup)verticalGroups[1])
                 .addGroup(layouts[1].createSequentialGroup()
-                        .addGroup(layouts[1].createParallelGroup()
+                        .addGroup(layouts[1].createParallelGroup(GroupLayout.Alignment.CENTER)
                                 .addComponent(serverAddressLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                                 .addComponent(serverAddressField, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE))
-                        .addGroup(layouts[1].createParallelGroup()
+                        .addGroup(layouts[1].createParallelGroup(GroupLayout.Alignment.CENTER)
                                 .addComponent(serverPortLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                                 .addComponent(serverPortField, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)));
 
