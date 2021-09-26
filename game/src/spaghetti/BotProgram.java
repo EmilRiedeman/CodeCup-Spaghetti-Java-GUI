@@ -81,7 +81,10 @@ public class BotProgram extends BoardController {
             in = stdout.readLine();
         } catch (IOException e) {
             e.printStackTrace();
-            close();
+            if (board.getCurrentState() == BoardState.RUNNING) {
+                JOptionPane.showMessageDialog(null, "Bot " + name + " crashed.");
+                board.close();
+            }
             return;
         }
         try {
@@ -92,7 +95,7 @@ public class BotProgram extends BoardController {
             else throw new NullPointerException();
         } catch (NullPointerException e) {
             if (board.getCurrentState() == BoardState.RUNNING) {
-                String msg = "Bot " + name + " sends wrong move or crashes.";
+                String msg = "Bot " + name + " sends wrong move or was exited too early.";
                 System.err.println(msg);
                 JOptionPane.showMessageDialog(null, msg);
                 board.close();
