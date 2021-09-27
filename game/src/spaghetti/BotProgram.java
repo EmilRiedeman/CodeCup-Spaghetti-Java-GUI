@@ -142,15 +142,8 @@ public class BotProgram extends BoardController {
         } catch (IOException ignored) {
         }
 
-        try {
-            if (stderr != null) stderr.close();
-            stdout.close();
-            stdin.close();
-        } catch (IOException ignored) {
-        }
-
-        System.err.println("Bot " + name + " was destroyed.");
         process.destroyForcibly();
+        System.err.println("Bot " + name + " was destroyed.");
     }
 
     @Override

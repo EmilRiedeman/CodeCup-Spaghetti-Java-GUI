@@ -111,6 +111,8 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
                 }
         }
 
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+
         // Plus Dots:
         g2.setColor(parent.colorPalette.get(0));
         for (int row = 0; row < board.height + 1; ++row) for (int col = 0; col < board.width + 1; ++col) {
@@ -220,7 +222,7 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
 
     public int tileSize() {
         return Math.max(
-                Math.min((getWidth()-boardOffsetX*2)/board.width, (getHeight()-boardOffsetY*2)/board.height)/2*2, 2
+                Math.min((getWidth()-boardOffsetX*2)/board.width, (getHeight()-boardOffsetY*2)/board.height)/4*4+2, 2
         );
     }
 
@@ -362,6 +364,8 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
 
     @Override
     public void onBoardStateChange(BoardState newState) {
+        sample = null;
+        highlight = null;
         refreshPaint();
     }
 
@@ -453,6 +457,7 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
         addKeyListener(this);
 
         sample = null;
+        highlight = null;
 
         refreshPaint();
         requestFocus();
