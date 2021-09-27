@@ -85,7 +85,7 @@ public class Board {
 
     protected void setCurrentState(BoardState state) {
         currentState = state;
-        for (BoardListener l : listeners) l.onBoardStateChange(state);
+        for (BoardListener l : getBoardListeners()) l.onBoardStateChange(state);
     }
 
     public int getMoveCount() {

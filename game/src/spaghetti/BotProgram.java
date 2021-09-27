@@ -130,11 +130,12 @@ public class BotProgram extends BoardController {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+        } else if (newState == BoardState.OVER) close();
     }
 
     @Override
     public void close() {
+        if (!process.isAlive()) return;
         try {
             stdin.write("Quit\n");
             stdin.flush();
@@ -148,6 +149,7 @@ public class BotProgram extends BoardController {
         } catch (IOException ignored) {
         }
 
+        System.err.println("Bot " + name + " was destroyed.");
         process.destroyForcibly();
     }
 

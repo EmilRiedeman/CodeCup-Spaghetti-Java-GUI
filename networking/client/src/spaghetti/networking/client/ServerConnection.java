@@ -6,6 +6,7 @@ import spaghetti.networking.ServerPacketType;
 import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class ServerConnection extends BoardController implements Runnable {
 
@@ -24,7 +25,7 @@ public class ServerConnection extends BoardController implements Runnable {
 
         board.addBoardListener(this);
 
-        System.out.printf("Connected to %s:%s%n", address, port);
+        System.err.printf("Connected to %s:%s%n", address, port);
 
         new Thread(this).start();
     }
@@ -39,17 +40,8 @@ public class ServerConnection extends BoardController implements Runnable {
     }
 
     public void quit() {
-        System.err.println("QUITING");
-        connected = false;
-        try {
-            socket.close();
-            in.close();
-            out.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        board.removeBoardListener(this);
-        JOptionPane.showMessageDialog(null, "Disconnected.");
+        board.close();
+        if (connected) JOptionPane.showMessageDialog(null, "Disconnected.");
     }
 
     @Override
@@ -65,11 +57,22 @@ public class ServerConnection extends BoardController implements Runnable {
 
     @Override
     public void onBoardStateChange(BoardState newState) {
+        if (newState == BoardState.OVER) close();
     }
 
     @Override
     public void close() {
-        quit();
+        if (!connected) return;
+        System.err.println("Disconnecting...");
+        connected = false;
+        try {
+            socket.close();
+            in.close();
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        board.removeBoardListener(this);
     }
 
     @Override
@@ -87,7 +90,7 @@ public class ServerConnection extends BoardController implements Runnable {
         while (connected) {
             try {
                 Object data = in.readObject();
-                System.out.println("received: " + data);
+                System.err.println("received: " + data);
                 if (data instanceof ServerPacketType) {
                     switch ((ServerPacketType) data) {
                         case SIDE:
