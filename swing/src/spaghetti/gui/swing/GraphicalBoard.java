@@ -219,7 +219,9 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
     }
 
     public int tileSize() {
-        return 74;
+        return Math.max(
+                Math.min((getWidth()-boardOffsetX*2)/board.width, (getHeight()-boardOffsetY*2)/board.height)/2*2, 2
+        );
     }
 
     public int getBoardWidth() {
