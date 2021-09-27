@@ -47,24 +47,48 @@ public class Server {
         }
     }
 
+    public void close() {
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        board.close();
+        for (ClientConnection connection : connections.toArray(new ClientConnection[0])) {
+            connection.quit();
+        }
+    }
+
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Server Address: " + InetAddress.getLocalHost().getHostAddress());
+        System.out.println("Your IPv4 Address: " + InetAddress.getLocalHost().getHostAddress());
+        System.out.print("Server Address: ");
+        final String address = scanner.nextLine();
         System.out.print("Server Port:    ");
         int port = scanner.nextInt();
 
         System.out.print("Pre Played Moves (true/false): ");
         boolean prePlayed = scanner.nextBoolean();
 
-        Server server = new Server(InetAddress.getLocalHost().getHostAddress(), port);
+        System.out.print("Loop (true/false): ");
+        boolean loop = scanner.nextBoolean();
 
-        server.waitForPlayers();
-        System.out.println("Players found.");
-        server.start(prePlayed);
+        do {
+            try {
+                Server server = new Server(address, port);
 
-        while (server.board.getCurrentState() == BoardState.RUNNING) {
-            if (!((ClientConnection)server.board.getControllerTurn()).play()) break;
-        }
-        server.board.close();
+                server.waitForPlayers();
+                System.out.println("Players found.");
+                server.start(prePlayed);
+
+                while (server.board.getCurrentState() == BoardState.RUNNING) {
+                    if (!((ClientConnection) server.board.getControllerTurn()).play()) break;
+                }
+                server.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+                break;
+            }
+        } while (loop);
     }
 }
