@@ -299,8 +299,8 @@ public class Board {
             if (choose_best) break;
         }
 
-        if (moveCount == width * height) close();
         turn = !turn;
         for (BoardListener listener : listeners) listener.registerMove(move, player);
+        if (moveCount == width * height) close();
     }
 }

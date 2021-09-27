@@ -40,8 +40,8 @@ public class ServerConnection extends BoardController implements Runnable {
     }
 
     public void quit() {
-        board.close();
         if (connected) JOptionPane.showMessageDialog(null, "Disconnected.");
+        board.close();
     }
 
     @Override
