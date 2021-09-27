@@ -17,7 +17,7 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
     public final int
             gridLineWidth = 1, boardOffsetX = 40, boardOffsetY = 40,
             thick = 4, sampleTypeSize = 30, sampleSpacing = 10, turnCircleSize = 22, turnCircleOverlap = 6;
-    protected Point highlight = null, sample = null; // sample is bad self made button
+    protected Point highlight = null, samplePos = null, selected = null;
     protected char sampleHighlight = '\0';
     public Font font = new Font("Consolas", Font.PLAIN, 20);
 
@@ -171,12 +171,12 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
         }
 
         // Sample:
-        if (sample != null) drawSample(g2);
+        if (samplePos != null) drawSample(g2);
     }
 
     protected void drawSample(Graphics2D g2) {
-        if (sample.x + getSampleWidth() > getTotalWidth()) sample.x -= sample.x + getSampleWidth() - getTotalWidth();
-        int x = sample.x - boardOffsetX, y = sample.y - boardOffsetY;
+        if (samplePos.x + getSampleWidth() > parent.getWidth()) samplePos.x -= samplePos.x + getSampleWidth() - parent.getWidth();
+        int x = samplePos.x - boardOffsetX, y = samplePos.y - boardOffsetY;
         Color c1 = parent.colorPalette.get(0), c2 = parent.colorPalette.get(9), c3 = parent.colorPalette.get(6);
         g2.setColor(parent.colorPalette.get(8));
         g2.fillRect(x, y, getSampleWidth(), getSampleHeight());
@@ -193,12 +193,12 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
     }
 
     protected boolean inSample(Point p) {
-        if (sample == null) return false;
-        return (p.x >= sample.x && p.x <= sample.x + getSampleWidth() && p.y >= sample.y && p.y <= sample.y + getSampleHeight());
+        if (samplePos == null) return false;
+        return (p.x >= samplePos.x && p.x <= samplePos.x + getSampleWidth() && p.y >= samplePos.y && p.y <= samplePos.y + getSampleHeight());
     }
 
     protected Point getRelativeSamplePosition(Point p) {
-        return new Point(p.x - sample.x, p.y - sample.y);
+        return new Point(p.x - samplePos.x, p.y - samplePos.y);
     }
 
     protected char getTypeFromSample(Point p) {
@@ -222,7 +222,7 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
 
     public int tileSize() {
         return Math.max(
-                Math.min((getWidth()-boardOffsetX*2)/board.width, (getHeight()-boardOffsetY*2)/board.height)/4*4+2, 2
+                Math.min((getWidth()-boardOffsetX*2)/board.width, (getHeight()-boardOffsetY*2)/board.height)/2*2, 2
         );
     }
 
@@ -328,7 +328,7 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
         } else if (p.equals(highlight)) {
             g2.setColor(parent.colorPalette.get(6));
             g2.fillRect(x, y, s + gridLineWidth * 2, s + gridLineWidth * 2);
-        } else if (sample != null && p.equals(getBoardPosition(sample.x, sample.y))) {
+        } else if (p.equals(selected)) {
             g2.setColor(parent.colorPalette.get(board.getTurn()? 4: 3));
             g2.fillRect(x, y, s + gridLineWidth * 2, s + gridLineWidth * 2);
         }
@@ -364,7 +364,8 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
 
     @Override
     public void onBoardStateChange(BoardState newState) {
-        sample = null;
+        samplePos = null;
+        selected = null;
         highlight = null;
         refreshPaint();
     }
@@ -402,20 +403,22 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
         e.translatePoint(-getCenterOffsetX(), -getCenterOffsetY());
         if (inSample(e.getPoint())) {
             char t = getTypeFromSample(e.getPoint());
-            Point s = getBoardPosition(sample.x, sample.y);
-            if (t != '\0') board.play(new Move(s.x, s.y, t), this);
+            if (t != '\0') board.play(new Move(selected.x, selected.y, t), this);
             sampleHighlight = '\0';
-            sample = null;
+            samplePos = null;
+            selected = null;
             refreshPaint();
             return;
         }
         sampleHighlight = '\0';
-        sample = null;
+        selected = null;
+        samplePos = null;
         Point p = getBoardPosition(e.getX(), e.getY());
         if (p != null && (board.isOccupied(p.x, p.y) || !p.equals(highlight))) p = null;
         highlight = null;
         if (p != null) {
-            sample = e.getPoint();
+            samplePos = e.getPoint();
+            selected = p;
         }
         e.translatePoint(getCenterOffsetX(), getCenterOffsetY());
         mouseMoved(e);
@@ -446,7 +449,7 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
         sampleHighlight = '\0';
         highlight = getBoardPosition(e.getX(), e.getY());
         if (highlight != null && (board.isOccupied(highlight.x, highlight.y) ||
-                (sample != null && highlight.equals(getBoardPosition(sample.x, sample.y))))) highlight = null;
+                (highlight.equals(selected)))) highlight = null;
         refreshPaint();
     }
 
@@ -456,7 +459,8 @@ public class GraphicalBoard extends JComponent implements MouseInputListener, Bo
         frame.getContentPane().add(this);
         addKeyListener(this);
 
-        sample = null;
+        samplePos = null;
+        selected = null;
         highlight = null;
 
         refreshPaint();
