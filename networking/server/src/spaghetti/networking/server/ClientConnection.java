@@ -13,6 +13,7 @@ import java.util.Arrays;
 
 public class ClientConnection extends BoardController {
 
+    protected boolean connected = true;
     public final Socket socket;
     public final Server server;
     public final ObjectInputStream in;
@@ -26,7 +27,7 @@ public class ClientConnection extends BoardController {
         in = new ObjectInputStream(socket.getInputStream());
         out = new ObjectOutputStream(socket.getOutputStream());
         try {
-            name = (String) in.readObject(); // todo max response time
+            name = (String) in.readObject();
         } catch (ClassNotFoundException e) {
             System.err.println("Sent name is not a String");
             quit();
@@ -83,8 +84,9 @@ public class ClientConnection extends BoardController {
     }
 
     public void quit() {
+        if (connected) System.out.println(this + " disconnected.");
+        connected = false;
         server.connections.remove(this);
-        System.out.println(this + " disconnected.");
         try {
             socket.close();
             in.close();
