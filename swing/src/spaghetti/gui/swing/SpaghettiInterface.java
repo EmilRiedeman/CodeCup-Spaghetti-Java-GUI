@@ -29,7 +29,7 @@ public class SpaghettiInterface extends JFrame {
         put(-2, new Color(50, 50, 50)); // BACKGROUND JFRAME
         put(-1, new Color(60, 60, 60)); // BACKGROUND BOARD
         put(0, new Color(220, 220, 220));
-        put(1, new Color(50, 50, 255));
+        put(1, new Color(75, 75, 255));
         put(2, Color.RED);
         put(3, new Color(173, 216, 230));
         put(4, new Color(221, 136, 136));
