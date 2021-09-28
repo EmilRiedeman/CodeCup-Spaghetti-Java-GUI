@@ -26,6 +26,10 @@ public class BotProgram extends BoardController {
         if (process != null) listen();
     }
 
+    public boolean isRunning() {
+        return process != null && process.isAlive();
+    }
+
     public void setup() {
         try {
             process = Runtime.getRuntime().exec(cmd);

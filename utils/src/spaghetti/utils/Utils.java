@@ -12,6 +12,13 @@ public final class Utils {
         return extension.toLowerCase();
     }
 
+    public static String getPathWithoutSpaces(String dir) {
+        if (System.getProperty("os.name").startsWith("Windows"))
+            return '"' + dir + '"';
+        else
+            return dir.replaceAll(" ", "\\\\ ");
+    }
+
     public static <T> Pair<T, T> swap(T a, T b) {
         return new Pair<>(b, a);
     }

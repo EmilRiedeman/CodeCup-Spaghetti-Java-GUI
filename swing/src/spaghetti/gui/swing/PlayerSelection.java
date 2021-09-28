@@ -254,28 +254,18 @@ public class PlayerSelection extends JPanel implements ItemListener {
                 String cmd = null;
                 if (execRadio.isSelected()) {
                     if (fileExec != null && fileExec.exists())
-                        cmd = fileExec.getAbsolutePath();
+                        cmd = Utils.getPathWithoutSpaces(fileExec.getAbsolutePath());
                 } else if (javaRadio.isSelected()) {
                     if (fileJava != null && fileJava.exists()) {
                         String javaExe = "java";
                         if (Utils.getFileExtension(fileJava).equals("class")) {
                             String dir = fileJava.getParent();
-                            if (System.getProperty("os.name").startsWith("Windows")) {
-                                dir = '"' + dir + '"';
-                            } else {
-                                dir = dir.replaceAll(" ", "\\\\ ");
-                            }
-                            cmd = javaExe + " -classpath " + dir +
+                            cmd = javaExe + " -classpath " + Utils.getPathWithoutSpaces(dir) +
                                     " " + fileJava.getName().replaceFirst("[.][^.]+$", "");
                         }
                         else if (Utils.getFileExtension(fileJava).equals("jar")) {
                             String file = fileJava.getAbsolutePath();
-                            if (System.getProperty("os.name").startsWith("Windows")) {
-                                file = '"' + file + '"';
-                            } else {
-                                file = file.replaceAll(" ", "\\\\ ");
-                            }
-                            cmd = javaExe + " -jar " + file + "";
+                            cmd = javaExe + " -jar " + Utils.getPathWithoutSpaces(file) + "";
                         }
                     }
                 } else {
@@ -283,6 +273,7 @@ public class PlayerSelection extends JPanel implements ItemListener {
                 }
                 if (cmd != null) {
                     r = new BotProgram(name, cmd, board, logCheckBox.isSelected()? new File(logDirChooser.getSelectedFile(), logTextField.getText()): null);
+                    if (!((BotProgram)r).isRunning()) r = null;
                 }
                 break;
         }
