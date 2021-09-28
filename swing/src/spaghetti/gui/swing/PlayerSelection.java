@@ -251,25 +251,32 @@ public class PlayerSelection extends JPanel implements ItemListener {
                 }
                 break;
             case 2:
-                String cmd = null;
+                String[] cmd = null;
                 if (execRadio.isSelected()) {
                     if (fileExec != null && fileExec.exists())
-                        cmd = Utils.getPathWithoutSpaces(fileExec.getAbsolutePath());
+                        cmd = new String[]{fileExec.getAbsolutePath()};
                 } else if (javaRadio.isSelected()) {
                     if (fileJava != null && fileJava.exists()) {
-                        String javaExe = "java";
                         if (Utils.getFileExtension(fileJava).equals("class")) {
                             String dir = fileJava.getParent();
-                            cmd = javaExe + " -classpath " + Utils.getPathWithoutSpaces(dir) +
-                                    " " + fileJava.getName().replaceFirst("[.][^.]+$", "");
+                            cmd = new String[]{
+                                    "java",
+                                    "-classpath",
+                                    dir,
+                                    fileJava.getName().replaceFirst("[.][^.]+$", "")
+                            };
                         }
                         else if (Utils.getFileExtension(fileJava).equals("jar")) {
                             String file = fileJava.getAbsolutePath();
-                            cmd = javaExe + " -jar " + Utils.getPathWithoutSpaces(file) + "";
+                            cmd = new String[] {
+                                    "java",
+                                    "-jar",
+                                    file
+                            };
                         }
                     }
                 } else {
-                    cmd = otherField.getText();
+                    cmd = Utils.splitBackslash(otherField.getText(), ' ');
                 }
                 if (cmd != null) {
                     r = new BotProgram(name, cmd, board, logCheckBox.isSelected()? new File(logDirChooser.getSelectedFile(), logTextField.getText()): null);

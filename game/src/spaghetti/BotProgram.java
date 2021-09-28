@@ -13,9 +13,9 @@ public class BotProgram extends BoardController {
     protected final File logFile;
     protected Process process;
     protected boolean side;
-    public final String cmd;
+    public final String[] cmd;
 
-    public BotProgram(String name, String command, Board board, File logFile) {
+    public BotProgram(String name, String[] command, Board board, File logFile) {
         super(name, board);
         board.addBoardListener(this);
 
