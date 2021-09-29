@@ -59,7 +59,9 @@ public class BotProgram extends BoardController {
             }
             while (board.getCurrentState() != BoardState.OVER) {
                 try {
-                    writer.write(stderr.read());
+                    int r = stderr.read();
+                    if (r == -1) break;
+                    writer.write(r);
                 } catch (IOException e) {
                     break;
                 }
